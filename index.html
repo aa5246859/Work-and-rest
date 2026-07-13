@@ -6,6 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0E1116">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
@@ -319,7 +322,12 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(14,17,22,.92);backdro
       <div class="legend">少 <i style="background:var(--card2)"></i><i style="background:#3A3222"></i><i style="background:#57492A"></i><i style="background:var(--jade-deep)"></i><i style="background:var(--jade)"></i> 多　<span style="color:var(--gold)">●</span> 有運動</div>
     </div>
     <div class="card">
-      <div class="sec-title"><h3>資 料 備 份</h3><small>換手機前先匯出</small></div>
+      <div class="sec-title"><h3>雲 端 同 步</h3><small id="sync-status">載入中…</small></div>
+      <button class="btn" style="width:100%;padding:13px 0" id="sync-btn">使用 Google 登入</button>
+      <div style="font-size:.72rem;color:var(--dim);margin-top:9px;line-height:1.6">登入後每筆紀錄自動存到雲端。換手機、更新 app、清瀏覽器資料都不會丟，在新裝置登入同一個 Google 帳號就能接回來。</div>
+    </div>
+    <div class="card">
+      <div class="sec-title"><h3>資 料 備 份</h3><small>雙保險，偶爾匯出一份</small></div>
       <div class="w-input-row" style="margin-bottom:0">
         <button class="btn" style="flex:1;padding:13px 0" id="bk-out">匯出備份檔</button>
         <button class="btn" style="flex:1;padding:13px 0;background:var(--card2);color:var(--jade);border:1.5px solid var(--line)" id="bk-in">匯入備份</button>
@@ -870,5 +878,69 @@ $('#g-save').onclick=async()=>{
 })();
 </script>
 <script>if('serviceWorker' in navigator&&navigator.serviceWorker)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
+<script>
+/* ══════ Google 登入＋Firestore 自動同步 ══════ */
+const FIREBASE_CONFIG=null; /* ←←← 完成設定後，把 Firebase 給你的設定物件貼在這裡取代 null，長這樣：
+{apiKey:"AIza…",authDomain:"xxx.firebaseapp.com",projectId:"xxx",storageBucket:"xxx.appspot.com",messagingSenderId:"…",appId:"…"} */
+(function(){
+  const S=document.querySelector('#sync-status'),B=document.querySelector('#sync-btn');
+  const say=m=>{const t=document.querySelector('#toast');if(t){t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}};
+  if(!FIREBASE_CONFIG||typeof firebase==='undefined'){
+    S.textContent='尚未設定';
+    B.onclick=()=>say('要先完成 Firebase 設定，看 zip 裡的說明檔');
+    return;
+  }
+  try{firebase.initializeApp(FIREBASE_CONFIG)}catch(e){S.textContent='設定有誤';return}
+  const auth=firebase.auth(), db=firebase.firestore();
+  let user=null,timer=null;
+  const allLocal=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('rk_')&&k!=='rk__pushedAt')o[k.slice(3)]=localStorage.getItem(k)}return o};
+  function push(){
+    if(!user)return;
+    clearTimeout(timer);
+    S.textContent='同步中…';
+    timer=setTimeout(async()=>{
+      try{
+        const now=Date.now();
+        await db.collection('users').doc(user.uid).set({data:allLocal(),updatedAt:now});
+        localStorage.setItem('rk__pushedAt',String(now));
+        S.textContent='已同步 '+new Date(now).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+      }catch(e){S.textContent='同步失敗，下次操作會重試'}
+    },1500);
+  }
+  // 攔截每次寫入 → 自動排程上傳
+  const oset=window.storage.set.bind(window.storage), odel=window.storage.delete.bind(window.storage);
+  window.storage.set=async(k,v)=>{const r=await oset(k,v);push();return r};
+  window.storage.delete=async(k)=>{const r=await odel(k);push();return r};
+  B.onclick=()=>{
+    if(user){if(confirm('登出後這台裝置停止同步（資料仍在雲端）。確定？'))auth.signOut()}
+    else{
+      const p=new firebase.auth.GoogleAuthProvider();
+      const standalone=matchMedia('(display-mode: standalone)').matches;
+      (standalone?auth.signInWithRedirect(p):auth.signInWithPopup(p).catch(()=>auth.signInWithRedirect(p)));
+    }
+  };
+  auth.getRedirectResult().catch(()=>{});
+  auth.onAuthStateChanged(async u=>{
+    user=u;
+    if(!u){B.textContent='使用 Google 登入';S.textContent='未登入・資料只在這台裝置';return}
+    B.textContent='登出（'+(u.email||'已登入')+'）';
+    S.textContent='連線中…';
+    try{
+      const snap=await db.collection('users').doc(u.uid).get();
+      const localHas=Object.keys(allLocal()).length>0;
+      if(snap.exists){
+        const c=snap.data()||{};
+        const pushedAt=parseInt(localStorage.getItem('rk__pushedAt')||'0');
+        if(!localHas||(c.updatedAt||0)>pushedAt){
+          for(const[k,v]of Object.entries(c.data||{}))localStorage.setItem('rk_'+k,v);
+          localStorage.setItem('rk__pushedAt',String(c.updatedAt||Date.now()));
+          if(!sessionStorage.getItem('gsync')){sessionStorage.setItem('gsync','1');location.reload();return}
+        }
+      }
+      push();
+    }catch(e){S.textContent='連線失敗（'+(e.code||'網路')+'）'}
+  });
+})();
+</script>
 </body>
 </html>
