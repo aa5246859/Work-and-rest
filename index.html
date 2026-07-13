@@ -9,8 +9,8 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<meta name="apple-mobile-web-app-title" content="日課">
-<title>日課</title>
+<meta name="apple-mobile-web-app-title" content="Goals">
+<title>Goals</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -806,7 +806,7 @@ $('#bk-out').onclick=async()=>{
     const blob=new Blob([JSON.stringify({app:'rike',ver:1,at:new Date().toISOString(),data:out})],{type:'application/json'});
     const a=document.createElement('a');
     a.href=URL.createObjectURL(blob);
-    a.download='日課備份_'+TODAY+'.json';
+    a.download='Goals備份_'+TODAY+'.json';
     a.click();URL.revokeObjectURL(a.href);
     toast('備份檔已下載');
   }catch(e){toast('匯出失敗，再試一次')}
