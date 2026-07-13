@@ -880,7 +880,7 @@ $('#g-save').onclick=async()=>{
 <script>if('serviceWorker' in navigator&&navigator.serviceWorker)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 <script>
 /* ══════ Google 登入＋Firestore 自動同步 ══════ */
-const FIREBASE_CONFIG=null; /* ←←← 完成設定後，把 Firebase 給你的設定物件貼在這裡取代 null，長這樣：
+const FIREBASE_CONFIG={apiKey:"AIzaSyAw11-bnoJjmFZeX3j9JXgIsvd9kK0yBZI",authDomain:"goals-f0e4c.firebaseapp.com",projectId:"goals-f0e4c",storageBucket:"goals-f0e4c.firebasestorage.app",messagingSenderId:"655443986836",appId:"1:655443986836:web:a456bd79c0f2c5b2bc6781"}; /* ←←← 完成設定後，把 Firebase 給你的設定物件貼在這裡取代 null，長這樣：
 {apiKey:"AIza…",authDomain:"xxx.firebaseapp.com",projectId:"xxx",storageBucket:"xxx.appspot.com",messagingSenderId:"…",appId:"…"} */
 (function(){
   const S=document.querySelector('#sync-status'),B=document.querySelector('#sync-btn');
