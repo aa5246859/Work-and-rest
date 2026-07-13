@@ -360,6 +360,7 @@ if(!window.storage){
   };
 }
 /* ─────────── helpers ─────────── */
+const FIREBASE_CONFIG={apiKey:"AIzaSyAw11-bnoJjmFZeX3j9JXgIsvd9kK0yBZI",authDomain:"goals-f0e4c.firebaseapp.com",projectId:"goals-f0e4c",storageBucket:"goals-f0e4c.firebasestorage.app",messagingSenderId:"655443986836",appId:"1:655443986836:web:a456bd79c0f2c5b2bc6781"};
 const $=s=>document.querySelector(s);
 const pad=n=>String(n).padStart(2,'0');
 const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
@@ -853,6 +854,69 @@ $('#g-save').onclick=async()=>{
   renderWeight();
 };
 
+
+/* ══════ Google 同步 ══════ */
+function initSync(){
+  const S=$('#sync-status'),B=$('#sync-btn');
+  if(typeof firebase==='undefined'||!FIREBASE_CONFIG){
+    S.textContent='尚未設定';
+    B.onclick=()=>toast('要先完成 Firebase 設定');
+    return;
+  }
+  try{firebase.initializeApp(FIREBASE_CONFIG)}catch(e){}
+  const auth=firebase.auth(),fdb=firebase.firestore();
+  let fuser=null,ftimer=null;
+  const allLocal=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('rk_')&&k!=='rk__pushedAt')o[k.slice(3)]=localStorage.getItem(k)}return o};
+  function fpush(){
+    if(!fuser)return;clearTimeout(ftimer);
+    ftimer=setTimeout(async()=>{
+      try{
+        const now=Date.now();S.textContent='同步中…';
+        await fdb.collection('users').doc(fuser.uid).set({data:allLocal(),updatedAt:now});
+        localStorage.setItem('rk__pushedAt',String(now));
+        S.textContent='已同步 '+new Date(now).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+      }catch(e){S.textContent='同步失敗：'+(e.code||e.message)}
+    },1500);
+  }
+  const oset=window.storage.set.bind(window.storage),odel=window.storage.delete.bind(window.storage);
+  window.storage.set=async(k,v)=>{const r=await oset(k,v);fpush();return r};
+  window.storage.delete=async(k)=>{const r=await odel(k);fpush();return r};
+  async function fpull(u){
+    try{
+      S.textContent='從雲端拉取…';
+      const snap=await fdb.collection('users').doc(u.uid).get();
+      if(snap.exists){
+        const c=snap.data()||{};
+        const pushedAt=parseInt(localStorage.getItem('rk__pushedAt')||'0');
+        const localHas=Object.keys(allLocal()).length>0;
+        if(!localHas||(c.updatedAt||0)>pushedAt){
+          for(const[kk,vv]of Object.entries(c.data||{}))localStorage.setItem('rk_'+kk,vv);
+          localStorage.setItem('rk__pushedAt',String(c.updatedAt||Date.now()));
+          if(!sessionStorage.getItem('gsync')){sessionStorage.setItem('gsync','1');location.reload();return}
+        }
+      }
+      fpush();
+    }catch(e){S.textContent='拉取失敗：'+(e.code||e.message)}
+  }
+  function fonLogin(u){fuser=u;B.textContent='登出（'+u.email+'）';S.textContent='已登入';fpull(u)}
+  function fonLogout(){fuser=null;B.textContent='使用 Google 登入';S.textContent='未登入・資料只在這台裝置'}
+  B.onclick=async()=>{
+    if(fuser){if(confirm('登出？'))auth.signOut();return}
+    const prov=new firebase.auth.GoogleAuthProvider();
+    S.textContent='開啟登入…';
+    try{
+      const r=await auth.signInWithPopup(prov);
+      if(r.user)fonLogin(r.user);
+    }catch(e){
+      S.textContent='popup：'+(e.code||'')+' 改用跳轉…';
+      try{await auth.signInWithRedirect(prov)}catch(e2){S.textContent='失敗：'+e2.code}
+    }
+  };
+  S.textContent='檢查登入…';
+  auth.getRedirectResult().then(r=>{if(r&&r.user)fonLogin(r.user)}).catch(()=>{});
+  auth.onAuthStateChanged(u=>{if(u)fonLogin(u);else fonLogout()});
+}
+
 (async function init(){
   $('#hd-week').textContent='星期'+WEEKS[DOW]+(HOLIDAYS[TODAY]?'・'+HOLIDAYS[TODAY]:'');
   if(isDayOff){$('#work-title').textContent='日 常';$('#work-hint').textContent=HOLIDAYS[TODAY]?'今天放假 🎉':'週末休假'}
@@ -875,105 +939,9 @@ $('#g-save').onclick=async()=>{
   $('#v-q').innerHTML=Array.from({length:10},(_,i)=>`<option value="${i+1}" ${i+1===7?'selected':''}>穩定度 ${i+1}/10</option>`).join('');
   if(voice[TODAY]){$('#v-note').value=voice[TODAY].n;$('#v-q').value=voice[TODAY].q}
   renderToday();renderWeight();renderHistory();renderPhase();renderVoice();renderGoals();
+  initSync();
 })();
 </script>
 <script>if('serviceWorker' in navigator&&navigator.serviceWorker)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
-<script>
-/* ══════ Google 登入＋Firestore 自動同步 ══════ */
-(function(){
-  const S=document.querySelector('#sync-status'),B=document.querySelector('#sync-btn');
-  const log=m=>{S.textContent=m;console.log('[sync]',m)};
-  const say=m=>{const t=document.querySelector('#toast');if(t){t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}};
 
-  if(!FIREBASE_CONFIG||typeof firebase==='undefined'){
-    log('尚未設定');B.onclick=()=>say('要先完成 Firebase 設定');return;
-  }
-  try{firebase.initializeApp(FIREBASE_CONFIG)}catch(e){}
-  const auth=firebase.auth(), db=firebase.firestore();
-
-  let user=null,timer=null;
-  const allLocal=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('rk_')&&k!=='rk__pushedAt')o[k.slice(3)]=localStorage.getItem(k)}return o};
-
-  function push(){
-    if(!user)return;
-    clearTimeout(timer);
-    timer=setTimeout(async()=>{
-      try{
-        const now=Date.now();
-        log('上傳中…');
-        await db.collection('users').doc(user.uid).set({data:allLocal(),updatedAt:now});
-        localStorage.setItem('rk__pushedAt',String(now));
-        log('已同步 '+new Date(now).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}));
-      }catch(e){log('同步失敗：'+e.code)}
-    },1500);
-  }
-
-  const oset=window.storage.set.bind(window.storage),odel=window.storage.delete.bind(window.storage);
-  window.storage.set=async(k,v)=>{const r=await oset(k,v);push();return r};
-  window.storage.delete=async(k)=>{const r=await odel(k);push();return r};
-
-  async function pullCloud(u){
-    try{
-      log('從雲端拉取…');
-      const snap=await db.collection('users').doc(u.uid).get();
-      if(snap.exists){
-        const c=snap.data()||{};
-        const localHas=Object.keys(allLocal()).length>0;
-        const pushedAt=parseInt(localStorage.getItem('rk__pushedAt')||'0');
-        if(!localHas||(c.updatedAt||0)>pushedAt){
-          for(const[k,v]of Object.entries(c.data||{}))localStorage.setItem('rk_'+k,v);
-          localStorage.setItem('rk__pushedAt',String(c.updatedAt||Date.now()));
-          if(!sessionStorage.getItem('gsync')){sessionStorage.setItem('gsync','1');location.reload();return}
-        }
-      }
-      push();
-    }catch(e){log('拉取失敗：'+e.code)}
-  }
-
-  function onLogin(u){
-    user=u;
-    B.textContent='登出（'+u.email+'）';
-    log('登入成功：'+u.email);
-    pullCloud(u);
-  }
-
-  function onLogout(){
-    user=null;
-    B.textContent='使用 Google 登入';
-    log('未登入・資料只在這台裝置');
-  }
-
-  // ── 登入按鈕 ──
-  B.onclick=async()=>{
-    if(user){if(confirm('登出？'))auth.signOut();return}
-    const provider=new firebase.auth.GoogleAuthProvider();
-    log('嘗試登入…');
-    try{
-      log('開啟 Google 登入視窗…');
-      const result=await auth.signInWithPopup(provider);
-      log('popup 回傳，user='+(result.user?result.user.email:'null'));
-      if(result.user)onLogin(result.user);
-    }catch(e){
-      log('popup 失敗：'+e.code+'，改用跳轉…');
-      try{
-        await auth.signInWithRedirect(provider);
-      }catch(e2){log('跳轉也失敗：'+e2.code)}
-    }
-  };
-
-  // ── 頁面載入：檢查是否從跳轉回來 ──
-  log('檢查登入狀態…');
-  auth.getRedirectResult().then(result=>{
-    log('redirect result: user='+(result&&result.user?result.user.email:'none'));
-    if(result&&result.user)onLogin(result.user);
-  }).catch(e=>{
-    log('redirect 檢查：'+(e.code||e.message||'ok'));
-  });
-
-  auth.onAuthStateChanged(u=>{
-    log('auth 狀態：'+(u?u.email:'未登入'));
-    if(u)onLogin(u);else onLogout();
-  });
-})();
-</script>
 </body>
