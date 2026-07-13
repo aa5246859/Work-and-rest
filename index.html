@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0E1116">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<meta name="apple-mobile-web-app-title" content="日課">
+<title>日課</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1116; --card:#161A22; --card2:#1D2330; --line:#28303F;
+  --ink:#EDEFF4; --mut:#98A1B3; --dim:#67718A;
+  --jade:#E9C87E; --jade-deep:#7A6234; --gold:#93B8E6; --rose:#E09B92;
+  --r:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  line-height:1.5; min-height:100dvh;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom));
+}
+.wrap{max-width:480px;margin:0 auto;padding:20px 18px 0}
+.serif{font-family:"Noto Serif TC",serif}
+
+/* ── header ── */
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-top:env(safe-area-inset-top)}
+.date-block .weekday{font-size:.7rem;letter-spacing:.32em;color:var(--jade);margin-bottom:3px}
+.date-block .date{font-size:1.25rem;font-weight:700;letter-spacing:.02em}
+.streak{text-align:right;font-size:.7rem;color:var(--mut)}
+.streak b{display:block;font-size:1.1rem;color:var(--gold);font-weight:700;margin-top:2px}
+
+/* ── progress ring ── */
+.hero{display:flex;align-items:center;gap:20px;background:linear-gradient(135deg,#161A22 0%,#1A2130 100%);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin-bottom:16px}
+.ring{position:relative;width:104px;height:104px;flex:none}
+.ring svg{transform:rotate(-90deg);width:104px;height:104px}
+.ring .track{stroke:#232B3A}
+.ring .bar{stroke:url(#ringGrad);stroke-linecap:round;transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1)}
+.ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .pct b{font-size:1.55rem;font-weight:700;letter-spacing:-.01em;line-height:1;font-variant-numeric:tabular-nums;display:flex;align-items:baseline}
+.ring .pct b i{font-style:normal;font-size:.74rem;font-weight:600;color:var(--mut);margin-left:2px}
+.ring .pct span{font-size:.63rem;font-weight:500;color:var(--dim);letter-spacing:.08em;margin-top:4px}
+.hero-txt{min-width:0}
+.hero-txt h2{font-size:.98rem;font-weight:600;margin-bottom:5px;letter-spacing:.02em}
+.hero-txt p{font-size:.78rem;color:var(--mut);line-height:1.55}
+.hero.done-glow{border-color:var(--jade-deep);box-shadow:0 0 24px rgba(233,200,126,.07)}
+.hero.done-glow .hero-txt h2{color:var(--jade)}
+
+/* ── cards & sections ── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.sec-title{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.sec-title h3{font-size:.82rem;letter-spacing:.28em;color:var(--jade);font-weight:600}
+.sec-title small{font-size:.72rem;color:var(--dim)}
+
+/* ── task item ── */
+.task{display:flex;align-items:flex-start;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none}
+.task:last-child{border-bottom:none}
+.tick{flex:none;width:24px;height:24px;margin-top:1px;border-radius:8px;border:1.5px solid var(--dim);display:flex;align-items:center;justify-content:center;transition:all .18s}
+.tick svg{width:14px;height:14px;opacity:0;transform:scale(.5);transition:all .18s}
+.task.on .tick{background:var(--jade);border-color:var(--jade)}
+.task.on .tick svg{opacity:1;transform:scale(1)}
+.t-body{flex:1;min-width:0}
+.t-name{font-size:.95rem;font-weight:500}
+.task.on .t-name{color:var(--dim);text-decoration:line-through;text-decoration-color:var(--jade-deep)}
+.t-desc{font-size:.78rem;color:var(--mut);margin-top:2px}
+.t-badge{flex:none;font-size:.72rem;color:var(--mut);background:var(--card2);border-radius:999px;padding:3px 9px;margin-top:2px}
+.t-badge.full{color:var(--jade)}
+
+/* subs */
+.subs{margin:2px 0 6px 36px;border-left:1.5px solid var(--line);padding-left:12px;display:none}
+.subs.open{display:block}
+.sub{display:flex;align-items:center;gap:10px;padding:7px 2px;cursor:pointer}
+.sub .tick{width:19px;height:19px;border-radius:6px;margin:0}
+.sub .tick svg{width:11px;height:11px}
+.sub span{font-size:.87rem;color:var(--ink)}
+.sub.on span{color:var(--dim);text-decoration:line-through;text-decoration-color:var(--jade-deep)}
+.sub .cond{font-size:.68rem;color:var(--gold);margin-left:4px}
+.chev{flex:none;color:var(--dim);transition:transform .2s;margin-top:4px}
+.chev.open{transform:rotate(180deg)}
+
+/* ── water ── */
+.water-row{display:flex;gap:8px;margin:8px 0 4px 36px}
+.cup{flex:1;height:34px;border-radius:9px;border:1.5px solid var(--line);background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--dim);cursor:pointer;transition:all .15s}
+.cup.fill{background:var(--jade-deep);border-color:var(--jade);color:var(--ink)}
+
+/* ── workout ── */
+.wk-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:4px}
+.wk-btn{padding:13px 4px;border-radius:12px;border:1.5px solid var(--line);background:var(--card2);text-align:center;cursor:pointer;transition:all .15s}
+.wk-btn .zh{font-size:1rem;font-weight:600}
+.wk-btn .st{font-size:.66rem;color:var(--dim);margin-top:2px}
+.wk-btn.week-done{border-color:var(--jade-deep)}
+.wk-btn.week-done .st{color:var(--jade)}
+.wk-btn.today{background:var(--jade-deep);border-color:var(--jade)}
+.wk-btn.today .st{color:var(--ink)}
+.wk-note{font-size:.75rem;color:var(--mut);margin-top:10px}
+.wk-rest{margin-top:10px;font-size:.82rem;color:var(--mut);text-align:center;padding:9px;border:1px dashed var(--line);border-radius:10px;cursor:pointer}
+.wk-rest.on{color:var(--jade);border-color:var(--jade-deep)}
+
+/* ── weight tab ── */
+.w-input-row{display:flex;gap:10px;margin-bottom:14px}
+.w-input-row input{flex:1;background:var(--card2);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;font-size:1.05rem;color:var(--ink);outline:none;min-width:0}
+.w-input-row input:focus{border-color:var(--jade)}
+.w-input-row input[type=text]{font-size:.88rem}
+.w-input-row input::placeholder{color:var(--dim);font-size:.85rem}
+.btn.sq{width:46px;padding:0;flex:none;display:flex;align-items:center;justify-content:center;color:#181205}
+.btn.sq:active{filter:brightness(.92)}
+.btn.sq svg{width:16px;height:16px}
+.btn{background:var(--jade);color:#0C1410;border:none;border-radius:12px;padding:0 22px;font-size:.92rem;font-weight:600;cursor:pointer}
+.w-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.goal-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.goal-row .lab{font-size:.82rem;color:var(--mut);flex:none}
+.goal-row input{flex:1;background:transparent;border:none;font-size:1rem;color:var(--ink);outline:none;min-width:0}
+.goal-row .g-set{flex:none;font-size:.8rem;color:var(--jade);cursor:pointer;padding:4px 8px}
+/* 月曆 */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-head .m{font-size:1.02rem;font-weight:600;letter-spacing:.05em}
+.cal-nav{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--mut);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.95rem;user-select:none}
+.cal-nav.off{opacity:.25;pointer-events:none}
+.hm .cell.blank{background:transparent;border-color:transparent}
+.hm .cell.future{opacity:.32}
+.cal-stats{margin-top:12px;text-align:center;font-size:.8rem;color:var(--mut);letter-spacing:.05em}
+.cal-stats b{color:var(--jade)}
+/* 目標頁 */
+.ph-now{font-size:.95rem;margin-bottom:10px}
+.ph-now b{color:var(--jade)}
+.ph-bar{height:7px;background:var(--card2);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.ph-bar i{display:block;height:100%;background:var(--jade);border-radius:99px;transition:width .4s}
+.ph-step{display:flex;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line)}
+.ph-step:last-child{border:none}
+.ph-step .no{flex:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:var(--dim);margin-top:2px}
+.ph-step.past .no{border-color:var(--jade);color:var(--jade)}
+.ph-step.cur .no{background:var(--jade);border-color:var(--jade);color:#141008;font-weight:700}
+.ph-step .tx b{display:block;font-size:.9rem;font-weight:600}
+.ph-step .tx span{color:var(--mut);font-size:.78rem}
+.ph-step.cur .tx b{color:var(--jade)}
+.v-input{display:flex;gap:9px;margin-bottom:12px}
+.v-input select{flex:1;background:var(--card2);border:1.5px solid var(--line);border-radius:12px;padding:12px 10px;color:var(--ink);font-size:.95rem;outline:none;min-width:0}
+.del{flex:none;color:var(--dim);font-size:1.05rem;padding:2px 8px;cursor:pointer}
+.del:active{color:var(--rose)}
+.w-stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center}
+.w-stat b{display:block;font-size:1.15rem;font-weight:700}
+.w-stat span{font-size:.68rem;color:var(--mut)}
+.w-stat .up{color:var(--rose)} .w-stat .dn{color:var(--jade)}
+.chart-box{height:170px;margin:6px 0 4px}
+.w-list{margin-top:6px}
+.w-row{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--line);font-size:.9rem}
+.w-row:last-child{border:none}
+.w-row .d{color:var(--mut)}
+.w-row .diff{font-size:.78rem;margin-left:8px}
+
+/* ── history tab ── */
+.hm{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:6px}
+.hm .lab{font-size:.66rem;color:var(--dim);text-align:center}
+.hm .cell{aspect-ratio:1;border-radius:8px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--dim);position:relative}
+.hm .cell.l1{background:#3A3222;border-color:#4A4028}
+.hm .cell.l2{background:#57492A;border-color:#7A6234;color:var(--mut)}
+.hm .cell.l3{background:var(--jade-deep);border-color:var(--jade);color:var(--ink)}
+.hm .cell.l4{background:var(--jade);border-color:var(--jade);color:#0C1410;font-weight:700}
+.hm .cell.today-cell{outline:2px solid var(--gold);outline-offset:1px}
+.hm .cell .wk-dot{position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.legend{display:flex;align-items:center;gap:6px;justify-content:flex-end;margin-top:10px;font-size:.68rem;color:var(--dim)}
+.legend i{width:12px;height:12px;border-radius:4px;display:inline-block}
+.h-days{margin-top:4px}
+.h-row{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.h-row:last-child{border:none}
+.h-row .d{font-size:.85rem;color:var(--mut);width:86px;flex:none}
+.h-bar{flex:1;height:7px;background:var(--card2);border-radius:99px;overflow:hidden}
+.h-bar i{display:block;height:100%;background:var(--jade);border-radius:99px}
+.h-row .p{font-size:.8rem;width:42px;text-align:right}
+.h-row .w{font-size:.72rem;color:var(--gold);width:26px;text-align:center;flex:none}
+
+/* ── tabs ── */
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(14,17,22,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:10}
+.nav-in{max-width:480px;margin:0 auto;display:flex}
+.nav-btn{flex:1;padding:10px 0 12px;text-align:center;color:var(--dim);cursor:pointer;font-size:.7rem}
+.nav-btn svg{display:block;margin:0 auto 3px;width:22px;height:22px}
+.nav-btn.act{color:var(--jade)}
+.page{display:none}.page.act{display:block}
+.quote{text-align:center;font-size:.78rem;color:var(--dim);margin:22px 0 26px;letter-spacing:.15em}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--card2);border:1px solid var(--jade-deep);color:var(--ink);padding:10px 20px;border-radius:99px;font-size:.85rem;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty{text-align:center;color:var(--dim);font-size:.85rem;padding:24px 0}
+@media (min-width:640px){html{font-size:17px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="date-block">
+      <div class="weekday serif" id="hd-week">週一</div>
+      <div class="date serif" id="hd-date">7 月 13 日</div>
+    </div>
+    <div class="streak">連續達成<b id="hd-streak">0 天</b></div>
+  </header>
+
+  <!-- ═══ 今天 ═══ -->
+  <div class="page act" id="pg-today">
+    <div class="hero" id="hero">
+      <div class="ring">
+        <svg viewBox="0 0 92 92">
+          <defs><linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#F2D794"/><stop offset="100%" stop-color="#D9A85C"/>
+          </linearGradient></defs>
+          <circle class="track" cx="46" cy="46" r="40" fill="none" stroke-width="6.5"/>
+          <circle class="bar" id="ring-bar" cx="46" cy="46" r="40" fill="none" stroke-width="6.5"
+            stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
+        </svg>
+        <div class="pct"><b id="ring-pct">0%</b><span id="ring-cnt">0 / 0</span></div>
+      </div>
+      <div class="hero-txt">
+        <h2 id="hero-title">今天，進步 1%</h2>
+        <p id="hero-sub">不追求完美，只追求持續。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><h3>體 重</h3><small id="wq-hint">早上量完順手記</small></div>
+      <div class="w-input-row">
+        <input type="number" inputmode="decimal" step="0.1" placeholder="kg" id="wq-input">
+        <button class="btn" id="wq-save">記錄</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><h3>本 週 運 動</h3><small id="wk-count">0 / 4</small></div>
+      <div class="wk-grid" id="wk-grid"></div>
+      <div class="wk-rest" id="wk-rest">今天休息・恢復日 ✓</div>
+      <div class="wk-note">不綁死星期幾——這週把 胸・背・腿・肩 各練一次就算贏。點一下＝今天練了它。</div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title"><h3>今 日 安 排</h3><small>自己加的事，也算進今天完成度</small></div>
+      <div id="todo-list"></div>
+      <div class="w-input-row" style="margin-top:6px;margin-bottom:0">
+        <input type="text" id="todo-new" placeholder="今天額外要做的事…" maxlength="40">
+        <button class="btn sq" id="todo-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </div>
+
+    <div class="card"><div class="sec-title"><h3>早 晨</h3></div><div id="sec-am"></div></div>
+    <div class="card"><div class="sec-title"><h3 id="work-title">上 班</h3><small id="work-hint"></small></div><div id="sec-work"></div></div>
+    <div class="card"><div class="sec-title"><h3>晚 上</h3><small id="cond-hint"></small></div><div id="sec-pm"></div></div>
+    <div class="quote serif">紀律，是給未來自己的禮物</div>
+  </div>
+
+  <!-- ═══ 目標 ═══ -->
+  <div class="page" id="pg-goal">
+    <div class="card">
+      <div class="sec-title"><h3>唱 歌 路 線</h3><small id="ph-day"></small></div>
+      <div class="ph-now" id="ph-now"></div>
+      <div class="ph-bar"><i id="ph-bar-i" style="width:0%"></i></div>
+      <div id="ph-steps"></div>
+    </div>
+    <div class="card">
+      <div class="sec-title"><h3>音 域 紀 錄</h3><small>每天練完記今天最高「穩定」音</small></div>
+      <div class="v-input">
+        <select id="v-note"></select>
+        <select id="v-q"></select>
+        <button class="btn" id="v-save">記錄</button>
+      </div>
+      <div class="chart-box"><svg id="v-chart" width="100%" height="100%" viewBox="0 0 400 170" preserveAspectRatio="none"></svg></div>
+      <div class="w-list" id="v-list"></div>
+    </div>
+    <div class="card">
+      <div class="sec-title"><h3>目 標 清 單</h3><small id="goal-cnt"></small></div>
+      <div id="goal-list"></div>
+      <div class="w-input-row" style="margin-top:10px;margin-bottom:0">
+        <input type="text" id="goal-new" placeholder="新增目標…" maxlength="50">
+        <button class="btn sq" id="goal-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 體重 ═══ -->
+  <div class="page" id="pg-weight">
+    <div class="card">
+      <div class="sec-title"><h3>體 重 紀 錄</h3></div>
+      <div class="w-input-row">
+        <input type="number" inputmode="decimal" step="0.1" placeholder="今天的體重 (kg)" id="w-input">
+        <button class="btn" id="w-save">記錄</button>
+      </div>
+      <div class="goal-row">
+        <span class="lab">目標體重</span>
+        <input type="number" inputmode="decimal" step="0.1" placeholder="設定一個數字" id="g-input">
+        <span class="g-set" id="g-save">設定</span>
+      </div>
+      <div class="w-stats">
+        <div class="w-stat" id="ws-now"><b>–</b><span>最新</span></div>
+        <div class="w-stat" id="ws-goal"><b>–</b><span>距目標</span></div>
+        <div class="w-stat" id="ws-7d"><b>–</b><span>vs 7 天前</span></div>
+        <div class="w-stat" id="ws-30d"><b>–</b><span>vs 30 天前</span></div>
+      </div>
+      <div class="chart-box"><svg id="w-chart" width="100%" height="100%" viewBox="0 0 400 170" preserveAspectRatio="none"></svg></div>
+    </div>
+    <div class="card">
+      <div class="sec-title"><h3>近 期</h3><small id="w-more" style="cursor:pointer;color:var(--jade)"></small></div>
+      <div class="w-list" id="w-list"><div class="empty">還沒有紀錄，從今天開始。</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ 紀錄 ═══ -->
+  <div class="page" id="pg-history">
+    <div class="card">
+      <div class="cal-head">
+        <div class="cal-nav" id="cal-prev">◀</div>
+        <div class="m serif" id="cal-title">2026 年 7 月</div>
+        <div class="cal-nav" id="cal-next">▶</div>
+      </div>
+      <div class="hm" id="hm"></div>
+      <div class="cal-stats" id="cal-stats"></div>
+      <div class="legend">少 <i style="background:var(--card2)"></i><i style="background:#3A3222"></i><i style="background:#57492A"></i><i style="background:var(--jade-deep)"></i><i style="background:var(--jade)"></i> 多　<span style="color:var(--gold)">●</span> 有運動</div>
+    </div>
+    <div class="card">
+      <div class="sec-title"><h3>資 料 備 份</h3><small>換手機前先匯出</small></div>
+      <div class="w-input-row" style="margin-bottom:0">
+        <button class="btn" style="flex:1;padding:13px 0" id="bk-out">匯出備份檔</button>
+        <button class="btn" style="flex:1;padding:13px 0;background:var(--card2);color:var(--jade);border:1.5px solid var(--line)" id="bk-in">匯入備份</button>
+      </div>
+      <input type="file" id="bk-file" accept=".json" style="display:none">
+    </div>
+    <div class="card">
+      <div class="sec-title"><h3>每 日 明 細</h3><small>近 14 天</small></div>
+      <div class="h-days" id="h-days"><div class="empty">完成今天的清單，這裡就會亮起來。</div></div>
+    </div>
+  </div>
+</div>
+
+<nav><div class="nav-in">
+  <div class="nav-btn act" data-pg="today"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-5"/><rect x="4" y="4" width="16" height="16" rx="4"/></svg>今天</div>
+  <div class="nav-btn" data-pg="goal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>目標</div>
+  <div class="nav-btn" data-pg="weight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 17l5-6 4 4 6-8 3 4"/></svg>體重</div>
+  <div class="nav-btn" data-pg="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg>紀錄</div>
+</div></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ─────────── storage adapter：Claude 環境用雲端，GitHub Pages 用手機本地 ─────────── */
+if(!window.storage){
+  window.storage={
+    async get(k){const v=localStorage.getItem('rk_'+k);if(v===null)throw new Error('nf');return{key:k,value:v}},
+    async set(k,v){localStorage.setItem('rk_'+k,v);return{key:k,value:v}},
+    async delete(k){localStorage.removeItem('rk_'+k);return{key:k,deleted:true}},
+    async list(p){const keys=[];for(let i=0;i<localStorage.length;i++){const kk=localStorage.key(i);if(kk&&kk.startsWith('rk_')){const k2=kk.slice(3);if(!p||k2.startsWith(p))keys.push(k2)}}return{keys}}
+  };
+}
+/* ─────────── helpers ─────────── */
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const dstr=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=new Date(), TODAY=dstr(today), DOW=today.getDay(); // 0=日
+const WEEKS=['日','一','二','三','四','五','六'];
+const isCondDay=[0,1,3,5].includes(DOW); // 一三五日
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800)}
+async function sget(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null}catch(e){return null}}
+async function sset(k,v){try{await window.storage.set(k,JSON.stringify(v))}catch(e){toast('儲存失敗，再試一次')}}
+
+/* ─────────── 任務定義 ─────────── */
+const AM_SKIN=['保濕水','消紅腫水','精華液','眼周精華液','黑眼圈藥膏','鎖水（藍色）'];
+const PM_SKIN_BASE=['保濕水','精華液','去疤膏','A醇 1%','穀胱甘肽','維他命 C','眼膜貼','美白皮膚・擦腿手','鎖水'];
+const PM_SKIN_COND=['美白牙膏','頭皮洗藥水','去斑藥膏'];
+const PM_SKIN=isCondDay?PM_SKIN_BASE.concat(PM_SKIN_COND):PM_SKIN_BASE;
+
+/* 2026 台灣國定假日（含週末補假；2026 起已無補班日） */
+const HOLIDAYS={'2026-01-01':'元旦','2026-02-14':'春節連假','2026-02-15':'小年夜','2026-02-16':'除夕','2026-02-17':'春節','2026-02-18':'春節','2026-02-19':'春節','2026-02-20':'小年夜補假','2026-02-21':'春節連假','2026-02-22':'春節連假','2026-02-27':'228 補假','2026-02-28':'和平紀念日','2026-04-03':'兒童節補假','2026-04-04':'兒童節','2026-04-05':'清明節','2026-04-06':'清明補假','2026-05-01':'勞動節','2026-06-19':'端午節','2026-09-25':'中秋節','2026-09-26':'中秋連假','2026-09-27':'中秋連假','2026-09-28':'教師節','2026-10-09':'國慶補假','2026-10-10':'國慶日','2026-10-25':'光復節','2026-10-26':'光復節補假','2026-12-25':'行憲紀念日'};
+const isDayOff=(DOW===0||DOW===6)||!!HOLIDAYS[TODAY];
+
+const SECTIONS={
+ am:[
+  {id:'wake',n:'06:50 起床・刷牙・量體重'},
+  {id:'skinAM',n:'早上保養',subs:AM_SKIN},
+  {id:'invest',n:'看投資 5–10 分',d:'看完就關，不隨情緒改計畫'},
+  {id:'room',n:'整理房間 5–10 分'},
+ ],
+ work: isDayOff?[
+  {id:'water',n:'喝滿 3000cc 水',water:true},
+  {id:'fish',n:'吃魚油'},
+  {id:'med',n:'按時吃藥'},
+  {id:'noon',n:'中午刷牙'},
+ ]:[
+  {id:'water',n:'喝滿 3000cc 水',water:true},
+  {id:'fish',n:'吃魚油'},
+  {id:'med',n:'按時吃藥'},
+  {id:'noon',n:'中午刷牙'},
+  {id:'focus',n:'專心工作',d:'不頻繁看股價，不讓市場影響情緒'},
+ ],
+ pm:[
+  {id:'skinPM',n:'洗澡＋晚上保養',subs:PM_SKIN,condFrom:PM_SKIN_BASE.length},
+  {id:'voice',n:'發聲練習 15 分',d:'19:30–19:45'},
+  {id:'sing',n:'唱歌練習 30 分',d:'第 1 月：Lip trill・Nay Nay 音階・假聲→混聲・八度跳音（不練 JJ）'},
+  {id:'sleep',n:'22:30 前睡覺'},
+ ]
+};
+const PHASES=[
+ {t:'第 1 月・建立混聲',d:'Lip trill・Nay Nay 音階・假聲→混聲・八度跳音（不練 JJ）',g:'過關標準：Nay Nay 能帶到 G#4–A4 不硬擠、不整段跳假聲'},
+ {t:'第 2 月・穩定混聲＋弱聲',d:'Messa di voce・氣泡音起音・五成音量唱 JJ',g:'過關標準：五成音量唱 JJ 副歌不虛，E4–F4 能做出漸強漸弱'},
+ {t:'第 3 月・整合實戰',d:'混聲唱完整 JJ・周興哲入門曲',g:'過關標準：一首 JJ 從頭到尾混聲不斷、周興哲入門曲撐得完'},
+ {t:'進階期',d:'混聲日常化，往 A#4–D5 推進，弱聲持續打磨',g:'長期路：D5 是目標，不硬拉真音'}
+];
+const NOTES=['F4','F#4','G4','G#4','A4','A#4','B4','C5','C#5','D5'];
+const DEFAULT_GOALS=[
+ {n:'2026 內：A4 混聲穩定',on:false},
+ {n:'2026 內：A#4 混聲能出聲',on:false},
+ {n:'弱聲控制補起來（周興哲路線）',on:false},
+ {n:'長期：摸到 D5，建立混聲機制不硬拉',on:false}
+];
+if(DOW===0)SECTIONS.pm.splice(3,0,{id:'rec',n:'週日錄音對比',d:'錄同一段，和上週比：進步在哪、卡在哪'});
+const WORKOUTS=[{k:'chest',n:'胸'},{k:'back',n:'背'},{k:'legs',n:'腿'},{k:'shoulder',n:'肩'}];
+
+/* ─────────── state ─────────── */
+let day={done:{},subs:{},water:0,workout:null,rest:false,todos:[]}; // 今天
+let summary={};   // {date:{p,w}}
+let weights={};   // {date:kg}
+let goal=null;    // 目標體重
+let showAllW=false; // 體重列表展開
+let voice={};       // 音域 {date:{n:音階index,q:穩定度}}
+let goals=null;     // 目標清單 [{n,on}]
+let singStart=null; // 唱歌計畫起始日
+let phaseOv=null;   // 手動指定階段（null=依日期自動）
+
+function totalUnits(){
+  let n=0;
+  for(const sec of Object.values(SECTIONS)) for(const t of sec){
+    n += t.subs? t.subs.length : 1;
+  }
+  n += (day.todos||[]).length;
+  return n;
+}
+function doneUnits(){
+  let n=0;
+  for(const sec of Object.values(SECTIONS)) for(const t of sec){
+    if(t.subs){ const s=day.subs[t.id]||[]; n+=s.filter(Boolean).length; }
+    else if(t.water){ if(day.water>=6) n++; }
+    else if(day.done[t.id]) n++;
+  }
+  n += (day.todos||[]).filter(t=>t.on).length;
+  return n;
+}
+function pct(){ return Math.round(doneUnits()/totalUnits()*100); }
+
+/* ─────────── render: today ─────────── */
+const tickSVG='<svg viewBox="0 0 16 16" fill="none" stroke="#0C1410" stroke-width="2.6"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>';
+function renderSection(el,list){
+  el.innerHTML='';
+  for(const t of list){
+    const row=document.createElement('div');
+    if(t.subs){
+      const arr=day.subs[t.id]||Array(t.subs.length).fill(false);
+      const allOn=arr.length===t.subs.length&&arr.every(Boolean);
+      const cnt=arr.filter(Boolean).length;
+      row.className='task'+(allOn?' on':'');
+      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${t.n}</div>${t.d?`<div class="t-desc">${t.d}</div>`:''}</div><div class="t-badge${allOn?' full':''}">${cnt}/${t.subs.length}</div><div class="chev" data-ch="${t.id}">▾</div>`;
+      const subsBox=document.createElement('div');
+      subsBox.className='subs'; subsBox.dataset.sb=t.id;
+      t.subs.forEach((s,i)=>{
+        const cond=t.condFrom!=null&&i>=t.condFrom;
+        const d=document.createElement('div');
+        d.className='sub'+(arr[i]?' on':'');
+        d.innerHTML=`<div class="tick">${tickSVG}</div><span>${s}${cond?'<i class="cond">一三五日</i>':''}</span>`;
+        d.onclick=async e=>{e.stopPropagation();arr[i]=!arr[i];day.subs[t.id]=arr;await saveDay();renderToday(true)};
+        subsBox.appendChild(d);
+      });
+      row.onclick=e=>{
+        if(e.target.closest('.chev')){subsBox.classList.toggle('open');e.target.closest('.chev').classList.toggle('open');return}
+        subsBox.classList.toggle('open');
+        row.querySelector('.chev').classList.toggle('open');
+      };
+      el.appendChild(row);el.appendChild(subsBox);
+      if(cnt>0&&!allOn){subsBox.classList.add('open');row.querySelector('.chev').classList.add('open')}
+    }else if(t.water){
+      row.className='task'+(day.water>=6?' on':'');
+      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${t.n}</div><div class="t-desc">一格 500cc，喝完點一格</div></div><div class="t-badge${day.water>=6?' full':''}">${day.water*500}cc</div>`;
+      const cups=document.createElement('div');cups.className='water-row';
+      for(let i=0;i<6;i++){
+        const c=document.createElement('div');
+        c.className='cup'+(i<day.water?' fill':'');
+        c.textContent=(i+1)*500;
+        c.onclick=async e=>{e.stopPropagation();day.water=(i<day.water&&i===day.water-1)?i:i+1;await saveDay();renderToday(true)};
+        cups.appendChild(c);
+      }
+      row.onclick=()=>{};
+      el.appendChild(row);el.appendChild(cups);
+    }else{
+      row.className='task'+(day.done[t.id]?' on':'');
+      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${t.n}</div>${t.d?`<div class="t-desc">${t.d}</div>`:''}</div>`;
+      row.onclick=async()=>{day.done[t.id]=!day.done[t.id];await saveDay();renderToday(true)};
+      el.appendChild(row);
+    }
+  }
+}
+function renderWorkout(){
+  const g=$('#wk-grid');g.innerHTML='';
+  // 本週（週一起算）已完成哪些
+  const mon=new Date(today);const off=(DOW+6)%7;mon.setDate(mon.getDate()-off);
+  const weekDone={};
+  for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);const ds=dstr(d);
+    const w=(ds===TODAY)?day.workout:(summary[ds]&&summary[ds].w);
+    if(w&&w!=='rest')weekDone[w]=ds;}
+  $('#wk-count').textContent=Object.keys(weekDone).length+' / 4';
+  for(const w of WORKOUTS){
+    const b=document.createElement('div');
+    const isToday=day.workout===w.k;
+    b.className='wk-btn'+(weekDone[w.k]?' week-done':'')+(isToday?' today':'');
+    b.innerHTML=`<div class="zh serif">${w.n}</div><div class="st">${isToday?'今天 ✓':(weekDone[w.k]?'本週已練':'待練')}</div>`;
+    b.onclick=async()=>{day.workout=isToday?null:w.k;if(day.workout)day.rest=false;await saveDay();renderToday(true)};
+    g.appendChild(b);
+  }
+  const r=$('#wk-rest');
+  r.className='wk-rest'+(day.rest?' on':'');
+  r.textContent=day.rest?'今天休息・恢復日 ✓（保持正常作息）':'今天休息・恢復日';
+  r.onclick=async()=>{day.rest=!day.rest;if(day.rest)day.workout=null;await saveDay();renderToday(true)};
+}
+function renderRing(){
+  const p=pct();
+  $('#ring-pct').innerHTML=p+'<i>%</i>';
+  $('#ring-cnt').textContent=doneUnits()+' / '+totalUnits();
+  $('#ring-bar').style.strokeDashoffset=251.3*(1-p/100);
+  const hero=$('#hero');
+  if(p>=100){hero.classList.add('done-glow');$('#hero-title').textContent='今天 +1% 🎉';$('#hero-sub').textContent='全部完成。明天，繼續。'}
+  else if(p>=80){hero.classList.remove('done-glow');$('#hero-title').textContent='快完成了';$('#hero-sub').textContent='剩最後幾項，收尾。'}
+  else{hero.classList.remove('done-glow');$('#hero-title').textContent='今天，進步 1%';$('#hero-sub').textContent='不追求完美，只追求持續。'}
+}
+function renderToday(keepOpen){
+  const openIds=keepOpen?[...document.querySelectorAll('.subs.open')].map(x=>x.dataset.sb):[];
+  renderSection($('#sec-am'),SECTIONS.am);
+  renderSection($('#sec-work'),SECTIONS.work);
+  renderSection($('#sec-pm'),SECTIONS.pm);
+  for(const id of openIds){const b=document.querySelector(`.subs[data-sb="${id}"]`);if(b){b.classList.add('open');const ch=document.querySelector(`.chev[data-ch="${id}"]`);if(ch)ch.classList.add('open')}}
+  renderTodos();renderWorkout();renderRing();renderStreak();
+}
+async function saveDay(){
+  await sset('day:'+TODAY,day);
+  summary[TODAY]={p:pct(),w:day.workout||(day.rest?'rest':null)};
+  await sset('summary',summary);
+  renderHistory();
+}
+
+/* ─────────── 今日安排（自訂待辦） ─────────── */
+function renderTodos(){
+  const box=$('#todo-list');box.innerHTML='';
+  const list=day.todos||[];
+  if(!list.length){box.innerHTML='<div class="empty" style="padding:12px 0">假日的安排、臨時的事，加在這裡。</div>';return}
+  list.forEach((t,i)=>{
+    const r=document.createElement('div');
+    r.className='task'+(t.on?' on':'');
+    r.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${t.n}</div></div><span class="del" data-i="${i}">✕</span>`;
+    r.onclick=async e=>{
+      if(e.target.closest('.del')){
+        if(!confirm('刪掉「'+t.n+'」？'))return;
+        list.splice(i,1);await saveDay();renderToday(true);return;
+      }
+      t.on=!t.on;await saveDay();renderToday(true);
+    };
+    box.appendChild(r);
+  });
+}
+$('#todo-add').onclick=async()=>{
+  const v=$('#todo-new').value.trim();
+  if(!v)return;
+  (day.todos=day.todos||[]).push({n:v,on:false});
+  $('#todo-new').value='';
+  await saveDay();renderToday(true);
+};
+$('#todo-new').addEventListener('keydown',e=>{if(e.key==='Enter')$('#todo-add').click()});
+
+/* ─────────── 目標頁 ─────────── */
+function phaseIdx(){
+  if(phaseOv!=null)return phaseOv;
+  if(!singStart)return 0;
+  const days=Math.floor((today-new Date(singStart))/(864e5));
+  return Math.min(3,Math.floor(days/30));
+}
+function syncSingDesc(){
+  const pi=phaseIdx();
+  const t=SECTIONS.pm.find(x=>x.id==='sing');
+  if(t)t.d=PHASES[pi].t+'：'+PHASES[pi].d;
+}
+function renderPhase(){
+  const pi=phaseIdx();
+  const days=singStart?Math.floor((today-new Date(singStart))/(864e5))+1:1;
+  $('#ph-day').textContent='第 '+days+' 天・'+(phaseOv!=null?'手動':'自動');
+  $('#ph-now').innerHTML='目前：<b>'+PHASES[pi].t+'</b><br><span style="font-size:.78rem;color:var(--mut)">'+PHASES[pi].g+'</span>';
+  $('#ph-bar-i').style.width=Math.min(100,Math.round(days/90*100))+'%';
+  const box=$('#ph-steps');box.innerHTML='';
+  PHASES.forEach((p,i)=>{
+    const s=document.createElement('div');
+    s.className='ph-step'+(i===pi?' cur':i<pi?' past':'');
+    s.style.cursor='pointer';
+    s.innerHTML=`<div class="no">${i<pi?'✓':i+1}</div><div class="tx"><b>${p.t}</b><span>${p.d}</span></div>`;
+    s.onclick=async()=>{
+      if(i===pi)return;
+      const msg=i>pi?'確定升到「'+p.t+'」？\n'+PHASES[pi].g:'退回「'+p.t+'」多打底？穩紮穩打不丟臉。';
+      if(!confirm(msg))return;
+      phaseOv=i;await sset('phaseOv',phaseOv);
+      syncSingDesc();renderPhase();renderToday(true);
+      toast('已切換：'+p.t);
+    };
+    box.appendChild(s);
+  });
+  // 手動模式時提供恢復自動
+  if(phaseOv!=null){
+    const r=document.createElement('div');
+    r.className='wk-rest';r.style.marginTop='10px';
+    r.textContent='恢復依日期自動推進';
+    r.onclick=async()=>{phaseOv=null;await window.storage.delete('phaseOv').catch(()=>{});syncSingDesc();renderPhase();renderToday(true);toast('已恢復自動')};
+    box.appendChild(r);
+  }
+}
+function renderVoice(){
+  const keys=Object.keys(voice).sort();
+  const svg=$('#v-chart');
+  const targetIdx=NOTES.indexOf('A4');
+  if(keys.length<2){
+    svg.innerHTML='<text x="200" y="90" fill="#67718A" font-size="12" text-anchor="middle">記錄兩天以上就會出現曲線</text>';
+  }else{
+    const pts=keys.slice(-30).map(k=>({k,v:voice[k].n,q:voice[k].q}));
+    const vs=pts.map(p=>p.v);
+    let mn=Math.min(...vs,targetIdx-1),mx=Math.max(...vs,targetIdx+1);
+    const X=i=>10+i*(380/(pts.length-1)), Y=v=>15+(mx+.5-v)/((mx-mn)+1)*140;
+    const gy=Y(targetIdx);
+    let path='M'+pts.map((p,i)=>X(i)+','+Y(p.v)).join(' L');
+    svg.innerHTML=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#93B8E6" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#93B8E6" font-size="10" text-anchor="end">目標 A4</text>`+
+      `<path d="${path}" fill="none" stroke="#E9C87E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+
+      pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="#E9C87E"/>`).join('')+
+      `<text x="12" y="14" fill="#98A1B3" font-size="10">${NOTES[mx]||''}</text><text x="12" y="164" fill="#98A1B3" font-size="10">${NOTES[mn]||''}</text>`;
+  }
+  const list=$('#v-list');list.innerHTML='';
+  if(!keys.length){list.innerHTML='<div class="empty">今天練完，記下最高「穩定」音（不是硬撐上去的）。</div>';return}
+  keys.slice(-10).reverse().forEach(k=>{
+    const dd=new Date(k),v=voice[k];
+    const r=document.createElement('div');r.className='w-row';
+    r.innerHTML=`<span class="d">${dd.getMonth()+1}/${dd.getDate()}（${WEEKS[dd.getDay()]}）</span><span><b style="color:var(--jade)">${NOTES[v.n]}</b><span class="diff" style="color:var(--mut)">穩定度 ${v.q}/10</span></span>`;
+    list.appendChild(r);
+  });
+}
+function renderGoals(){
+  const box=$('#goal-list');box.innerHTML='';
+  const done=goals.filter(g=>g.on).length;
+  $('#goal-cnt').textContent=done+' / '+goals.length;
+  if(!goals.length){box.innerHTML='<div class="empty">寫下你要去的地方。</div>';return}
+  goals.forEach((g,i)=>{
+    const r=document.createElement('div');
+    r.className='task'+(g.on?' on':'');
+    r.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${g.n}</div></div><span class="del" data-i="${i}">✕</span>`;
+    r.onclick=async e=>{
+      if(e.target.closest('.del')){
+        if(!confirm('刪掉「'+g.n+'」？'))return;
+        goals.splice(i,1);await sset('goals',goals);renderGoals();return;
+      }
+      g.on=!g.on;await sset('goals',goals);renderGoals();
+      if(g.on)toast('達成一個目標 🎉');
+    };
+    box.appendChild(r);
+  });
+}
+$('#goal-add').onclick=async()=>{
+  const v=$('#goal-new').value.trim();
+  if(!v)return;
+  goals.push({n:v,on:false});
+  $('#goal-new').value='';
+  await sset('goals',goals);renderGoals();
+};
+$('#goal-new').addEventListener('keydown',e=>{if(e.key==='Enter')$('#goal-add').click()});
+$('#v-save').onclick=async()=>{
+  voice[TODAY]={n:parseInt($('#v-note').value),q:parseInt($('#v-q').value)};
+  await sset('voice',voice);
+  toast('已記錄 '+NOTES[voice[TODAY].n]+'・穩定度 '+voice[TODAY].q+'/10');
+  renderVoice();
+};
+
+/* ─────────── streak ─────────── */
+function renderStreak(){
+  let s=0;const d=new Date(today);
+  // 今天若 >=80 也算
+  if((summary[TODAY]?.p||0)>=80)s++;
+  d.setDate(d.getDate()-1);
+  while(true){const ds=dstr(d);if((summary[ds]?.p||0)>=80){s++;d.setDate(d.getDate()-1)}else break;}
+  $('#hd-streak').textContent=s+' 天';
+}
+
+/* ─────────── weight ─────────── */
+async function saveWeight(v){
+  const kg=parseFloat(v);
+  if(!kg||kg<25||kg>250){toast('輸入看起來怪怪的，再確認一下');return}
+  weights[TODAY]=Math.round(kg*10)/10;
+  await sset('weights',weights);
+  day.done['wake']=true; // 量了體重，起床項順手打勾
+  await saveDay();
+  toast('已記錄 '+weights[TODAY]+' kg');
+  $('#wq-input').value='';$('#w-input').value='';
+  renderWeight();renderToday(true);
+}
+function renderWeight(){
+  const keys=Object.keys(weights).sort();
+  const hint=$('#wq-hint');
+  if(weights[TODAY])hint.textContent='今天：'+weights[TODAY]+' kg ✓';
+  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';return}
+  const last=weights[keys[keys.length-1]];
+  $('#ws-now').innerHTML=`<b>${last}</b><span>最新 (kg)</span>`;
+  const diffTo=days=>{
+    const target=new Date(today);target.setDate(target.getDate()-days);
+    let best=null;for(const k of keys){if(k<=dstr(target))best=k;}
+    if(!best)return null;return Math.round((last-weights[best])*10)/10;
+  };
+  const d7=diffTo(7),d30=diffTo(30);
+  const statHTML=(v,label)=>v==null?`<b>–</b><span>${label}</span>`:`<b class="${v>0?'up':v<0?'dn':''}">${v>0?'+':''}${v}</b><span>${label}</span>`;
+  $('#ws-7d').innerHTML=statHTML(d7,'vs 7 天前');
+  $('#ws-30d').innerHTML=statHTML(d30,'vs 30 天前');
+  if(goal){const gd=Math.round((last-goal)*10)/10;
+    $('#ws-goal').innerHTML=gd<=0?`<b class="dn">達標 🎉</b><span>目標 ${goal} kg</span>`:`<b>${gd}</b><span>還差 (目標 ${goal})</span>`;
+  }else $('#ws-goal').innerHTML='<b>–</b><span>先設定目標</span>';
+  // chart（近 30 筆）
+  const pts=keys.slice(-30).map(k=>({k,v:weights[k]}));
+  const svg=$('#w-chart');
+  if(pts.length<2){svg.innerHTML='<text x="200" y="90" fill="#67718A" font-size="12" text-anchor="middle">記錄兩天以上就會出現曲線</text>';}
+  else{
+    const vs=pts.map(p=>p.v);
+    let mn=Math.min(...vs),mx=Math.max(...vs);
+    if(goal){mn=Math.min(mn,goal);mx=Math.max(mx,goal)}
+    const pad2=(mx-mn)*0.15||1;
+    const X=i=>10+i*(380/(pts.length-1)), Y=v=>15+(mx+pad2-v)/((mx-mn)+pad2*2)*140;
+    let path='M'+pts.map((p,i)=>X(i)+','+Y(p.v)).join(' L');
+    let goalLine='';
+    if(goal){const gy=Y(goal);goalLine=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#93B8E6" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#93B8E6" font-size="10" text-anchor="end">目標 ${goal}</text>`;}
+    svg.innerHTML=`<path d="${path} L${X(pts.length-1)},165 L10,165 Z" fill="rgba(233,200,126,.10)"/>${goalLine}<path d="${path}" fill="none" stroke="#E9C87E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+
+      pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="#E9C87E"/>`).join('')+
+      `<text x="12" y="14" fill="#98A1B3" font-size="10">${mx} kg</text><text x="12" y="164" fill="#98A1B3" font-size="10">${mn} kg</text>`;
+  }
+  // list
+  const list=$('#w-list');list.innerHTML='';
+  const rev=(showAllW?keys.slice():keys.slice(-14)).reverse();
+  $('#w-more').textContent=keys.length>14?(showAllW?'只看近 14 筆':'顯示全部 '+keys.length+' 筆'):'';
+  rev.forEach((k,i)=>{
+    const prev=rev[i+1]?weights[rev[i+1]]:null;
+    const df=prev!=null?Math.round((weights[k]-prev)*10)/10:null;
+    const r=document.createElement('div');r.className='w-row';
+    const dd=new Date(k);
+    r.innerHTML=`<span class="d">${dd.getMonth()+1}/${dd.getDate()}（${WEEKS[dd.getDay()]}）</span><span>${weights[k]} kg${df!=null?`<span class="diff" style="color:${df>0?'var(--rose)':df<0?'var(--jade)':'var(--dim)'}">${df>0?'+':''}${df}</span>`:''}</span>`;
+    list.appendChild(r);
+  });
+}
+
+/* ─────────── history (月曆) ─────────── */
+let viewY=today.getFullYear(), viewM=today.getMonth(); // 顯示中的月份
+function renderHistory(){
+  $('#cal-title').textContent=viewY+' 年 '+(viewM+1)+' 月';
+  // 下個月若整月都在未來就鎖住
+  const isCurMonth=(viewY===today.getFullYear()&&viewM===today.getMonth());
+  $('#cal-next').classList.toggle('off',isCurMonth||new Date(viewY,viewM+1,1)>today);
+  const hm=$('#hm');hm.innerHTML='';
+  for(const w of ['一','二','三','四','五','六','日']){const l=document.createElement('div');l.className='lab';l.textContent=w;hm.appendChild(l)}
+  const first=new Date(viewY,viewM,1);
+  const offset=(first.getDay()+6)%7; // 週一起始
+  const dim=new Date(viewY,viewM+1,0).getDate();
+  for(let i=0;i<offset;i++){const b=document.createElement('div');b.className='cell blank';hm.appendChild(b)}
+  for(let dt=1;dt<=dim;dt++){
+    const ds=viewY+'-'+pad(viewM+1)+'-'+pad(dt);
+    const c=document.createElement('div');c.className='cell';
+    c.textContent=dt;
+    const rec=summary[ds];
+    if(ds>TODAY)c.classList.add('future');
+    else if(rec){
+      const p=rec.p||0;
+      c.classList.add(p>=100?'l4':p>=80?'l3':p>=50?'l2':'l1');
+      if(rec.w&&rec.w!=='rest'){const dot=document.createElement('span');dot.className='wk-dot';c.appendChild(dot)}
+    }
+    if(ds===TODAY)c.classList.add('today-cell');
+    hm.appendChild(c);
+  }
+  // 本月小結
+  let mSum=0,mCnt=0,mWk=0;
+  for(let dt=1;dt<=dim;dt++){
+    const ds=viewY+'-'+pad(viewM+1)+'-'+pad(dt);
+    if(ds>TODAY)continue;
+    const rec=summary[ds];if(!rec)continue;
+    mCnt++;mSum+=rec.p||0;if(rec.w&&rec.w!=='rest')mWk++;
+  }
+  $('#cal-stats').innerHTML=mCnt?`本月平均 <b>${Math.round(mSum/mCnt)}%</b>・運動 <b>${mWk}</b> 次・紀錄 ${mCnt} 天`:'這個月還沒有紀錄';
+  // 每日明細
+  const box=$('#h-days');const rows=[];
+  for(let i=0;i<14;i++){
+    const d=new Date(today);d.setDate(d.getDate()-i);const ds=dstr(d);
+    const rec=summary[ds];if(!rec)continue;
+    const wName=rec.w==='rest'?'休':(WORKOUTS.find(x=>x.k===rec.w)||{}).n||'';
+    rows.push(`<div class="h-row"><span class="d">${d.getMonth()+1}/${d.getDate()}（${WEEKS[d.getDay()]}）</span><div class="h-bar"><i style="width:${rec.p}%"></i></div><span class="p" style="color:${rec.p>=80?'var(--jade)':'var(--mut)'}">${rec.p}%</span><span class="w">${wName}</span></div>`);
+  }
+  box.innerHTML=rows.length?rows.join(''):'<div class="empty">完成今天的清單，這裡就會亮起來。</div>';
+}
+$('#cal-prev').onclick=()=>{viewM--;if(viewM<0){viewM=11;viewY--}renderHistory()};
+$('#cal-next').onclick=()=>{viewM++;if(viewM>11){viewM=0;viewY++}renderHistory()};
+
+/* ─────────── 備份 ─────────── */
+$('#bk-out').onclick=async()=>{
+  try{
+    const {keys}=await window.storage.list('');
+    const out={};
+    for(const k of keys){try{const r=await window.storage.get(k);out[k]=r.value}catch(e){}}
+    const blob=new Blob([JSON.stringify({app:'rike',ver:1,at:new Date().toISOString(),data:out})],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='日課備份_'+TODAY+'.json';
+    a.click();URL.revokeObjectURL(a.href);
+    toast('備份檔已下載');
+  }catch(e){toast('匯出失敗，再試一次')}
+};
+$('#bk-in').onclick=()=>$('#bk-file').click();
+$('#bk-file').onchange=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  try{
+    const j=JSON.parse(await f.text());
+    if(j.app!=='rike'||!j.data)throw 0;
+    if(!confirm('匯入會覆蓋目前資料，確定？'))return;
+    for(const[k,v]of Object.entries(j.data))await window.storage.set(k,v);
+    toast('匯入完成，重新載入…');
+    setTimeout(()=>location.reload(),800);
+  }catch(err){toast('檔案格式不對')}
+};
+
+/* ─────────── nav & init ─────────── */
+document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('act'));
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('act'));
+  b.classList.add('act');$('#pg-'+b.dataset.pg).classList.add('act');
+  window.scrollTo({top:0});
+});
+$('#wq-save').onclick=()=>saveWeight($('#wq-input').value);
+$('#w-save').onclick=()=>saveWeight($('#w-input').value);
+$('#wq-input').addEventListener('keydown',e=>{if(e.key==='Enter')saveWeight(e.target.value)});
+$('#w-input').addEventListener('keydown',e=>{if(e.key==='Enter')saveWeight(e.target.value)});
+$('#w-more').onclick=()=>{showAllW=!showAllW;renderWeight()};
+$('#g-save').onclick=async()=>{
+  const v=parseFloat($('#g-input').value);
+  if(!v||v<25||v>250){toast('目標數字怪怪的，再確認一下');return}
+  goal=Math.round(v*10)/10;
+  await sset('goal',goal);
+  toast('目標設定：'+goal+' kg');
+  renderWeight();
+};
+
+(async function init(){
+  $('#hd-week').textContent='星期'+WEEKS[DOW]+(HOLIDAYS[TODAY]?'・'+HOLIDAYS[TODAY]:'');
+  if(isDayOff){$('#work-title').textContent='日 常';$('#work-hint').textContent=HOLIDAYS[TODAY]?'今天放假 🎉':'週末休假'}
+  $('#hd-date').textContent=(today.getMonth()+1)+' 月 '+today.getDate()+' 日';
+  $('#cond-hint').textContent=isCondDay?'今天：美白牙膏・頭皮藥水・去斑 ✦':'今天不用牙膏／頭皮／去斑';
+  const [d,s,w,g,v,gl,ss,po]=await Promise.all([sget('day:'+TODAY),sget('summary'),sget('weights'),sget('goal'),sget('voice'),sget('goals'),sget('singStart'),sget('phaseOv')]);
+  if(d)day=Object.assign(day,d);
+  if(s)summary=s;
+  if(w)weights=w;
+  if(g)goal=g;
+  if(v)voice=v;
+  goals=gl||DEFAULT_GOALS.slice();
+  if(ss)singStart=ss;else{singStart=TODAY;await sset('singStart',singStart)}
+  if(po!=null)phaseOv=po;
+  if(goal)$('#g-input').value=goal;
+  // 唱歌任務說明跟著目前階段走
+  syncSingDesc();
+  // 音域下拉
+  $('#v-note').innerHTML=NOTES.map((n,i)=>`<option value="${i}" ${n==='G#4'?'selected':''}>${n}</option>`).join('');
+  $('#v-q').innerHTML=Array.from({length:10},(_,i)=>`<option value="${i+1}" ${i+1===7?'selected':''}>穩定度 ${i+1}/10</option>`).join('');
+  if(voice[TODAY]){$('#v-note').value=voice[TODAY].n;$('#v-q').value=voice[TODAY].q}
+  renderToday();renderWeight();renderHistory();renderPhase();renderVoice();renderGoals();
+})();
+</script>
+<script>if('serviceWorker' in navigator&&navigator.serviceWorker)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
+</body>
+</html>
