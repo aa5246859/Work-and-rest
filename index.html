@@ -880,20 +880,22 @@ $('#g-save').onclick=async()=>{
 <script>if('serviceWorker' in navigator&&navigator.serviceWorker)navigator.serviceWorker.register('./sw.js').catch(()=>{});</script>
 <script>
 /* ══════ Google 登入＋Firestore 自動同步 ══════ */
-const FIREBASE_CONFIG={apiKey:"AIzaSyAw11-bnoJjmFZeX3j9JXgIsvd9kK0yBZI",authDomain:"goals-f0e4c.firebaseapp.com",projectId:"goals-f0e4c",storageBucket:"goals-f0e4c.firebasestorage.app",messagingSenderId:"655443986836",appId:"1:655443986836:web:a456bd79c0f2c5b2bc6781"}; /* ←←← 完成設定後，把 Firebase 給你的設定物件貼在這裡取代 null，長這樣：
-{apiKey:"AIza…",authDomain:"xxx.firebaseapp.com",projectId:"xxx",storageBucket:"xxx.appspot.com",messagingSenderId:"…",appId:"…"} */
 (function(){
   const S=document.querySelector('#sync-status'),B=document.querySelector('#sync-btn');
-  const say=m=>{const t=document.querySelector('#toast');if(t){t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}};
+  const say=m=>{const t=document.querySelector('#toast');if(t){t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}};
   if(!FIREBASE_CONFIG||typeof firebase==='undefined'){
     S.textContent='尚未設定';
-    B.onclick=()=>say('要先完成 Firebase 設定，看 zip 裡的說明檔');
+    B.onclick=()=>say('要先完成 Firebase 設定');
     return;
   }
-  try{firebase.initializeApp(FIREBASE_CONFIG)}catch(e){S.textContent='設定有誤';return}
+  try{firebase.initializeApp(FIREBASE_CONFIG)}catch(e){}
   const auth=firebase.auth(), db=firebase.firestore();
+  // 強制本地持久化
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(()=>{});
   let user=null,timer=null;
+
   const allLocal=()=>{const o={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('rk_')&&k!=='rk__pushedAt')o[k.slice(3)]=localStorage.getItem(k)}return o};
+
   function push(){
     if(!user)return;
     clearTimeout(timer);
@@ -904,28 +906,23 @@ const FIREBASE_CONFIG={apiKey:"AIzaSyAw11-bnoJjmFZeX3j9JXgIsvd9kK0yBZI",authDoma
         await db.collection('users').doc(user.uid).set({data:allLocal(),updatedAt:now});
         localStorage.setItem('rk__pushedAt',String(now));
         S.textContent='已同步 '+new Date(now).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
-      }catch(e){S.textContent='同步失敗，下次操作會重試'}
+      }catch(e){S.textContent='同步失敗（'+e.code+'）'}
     },1500);
   }
-  // 攔截每次寫入 → 自動排程上傳
+
   const oset=window.storage.set.bind(window.storage), odel=window.storage.delete.bind(window.storage);
   window.storage.set=async(k,v)=>{const r=await oset(k,v);push();return r};
   window.storage.delete=async(k)=>{const r=await odel(k);push();return r};
-  B.onclick=()=>{
-    if(user){if(confirm('登出後這台裝置停止同步（資料仍在雲端）。確定？'))auth.signOut()}
-    else{
-      const p=new firebase.auth.GoogleAuthProvider();
-      const standalone=matchMedia('(display-mode: standalone)').matches;
-      (standalone?auth.signInWithRedirect(p):auth.signInWithPopup(p).catch(()=>auth.signInWithRedirect(p)));
-    }
-  };
-  auth.getRedirectResult().catch(()=>{});
-  auth.onAuthStateChanged(async u=>{
+
+  function updateUI(u){
     user=u;
     if(!u){B.textContent='使用 Google 登入';S.textContent='未登入・資料只在這台裝置';return}
-    B.textContent='登出（'+(u.email||'已登入')+'）';
-    S.textContent='連線中…';
+    B.textContent='登出（'+u.email+'）';
+  }
+
+  async function pullCloud(u){
     try{
+      S.textContent='從雲端拉取資料…';
       const snap=await db.collection('users').doc(u.uid).get();
       const localHas=Object.keys(allLocal()).length>0;
       if(snap.exists){
@@ -938,7 +935,42 @@ const FIREBASE_CONFIG={apiKey:"AIzaSyAw11-bnoJjmFZeX3j9JXgIsvd9kK0yBZI",authDoma
         }
       }
       push();
-    }catch(e){S.textContent='連線失敗（'+(e.code||'網路')+'）'}
+    }catch(e){S.textContent='拉取失敗（'+e.code+'）'}
+  }
+
+  B.onclick=async()=>{
+    if(user){
+      if(confirm('登出後這台裝置停止同步。確定？'))auth.signOut();
+      return;
+    }
+    const provider=new firebase.auth.GoogleAuthProvider();
+    S.textContent='登入中…';
+    try{
+      // 優先用彈出視窗（不離開頁面）
+      const result=await auth.signInWithPopup(provider);
+      if(result.user){updateUI(result.user);await pullCloud(result.user)}
+    }catch(e){
+      if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request'){
+        // 彈出被擋 → 改用跳轉
+        S.textContent='跳轉登入中…';
+        auth.signInWithRedirect(provider);
+      }else{
+        S.textContent='登入失敗（'+e.code+'）';
+        say('登入失敗：'+e.message);
+      }
+    }
+  };
+
+  // 頁面載入時：先檢查跳轉結果，再監聽狀態
+  auth.getRedirectResult().then(result=>{
+    if(result&&result.user){updateUI(result.user);pullCloud(result.user)}
+  }).catch(e=>{
+    if(e.code&&e.code!=='auth/no-auth-event')S.textContent='跳轉登入失敗（'+e.code+'）';
+  });
+
+  auth.onAuthStateChanged(u=>{
+    updateUI(u);
+    if(u)pullCloud(u);
   });
 })();
 </script>
