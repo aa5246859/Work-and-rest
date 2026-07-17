@@ -130,6 +130,21 @@ header{display:flex;align-items:center;justify-content:space-between;margin-bott
 .hm .cell.future{opacity:.32}
 .cal-stats{margin-top:12px;text-align:center;font-size:.8rem;color:var(--mut);letter-spacing:.05em}
 .cal-stats b{color:var(--jade)}
+/* 減重路線 */
+.plan-hero{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:.86rem;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.plan-hero b{color:var(--jade)}
+.plan-hero .ok{color:var(--jade);font-size:.78rem;flex:none}
+.plan-hero .behind{color:var(--rose);font-size:.78rem;flex:none}
+.p-row{display:flex;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);font-size:.82rem;color:var(--mut)}
+.p-row:last-child{border:none}
+.p-row .pl{width:64px;flex:none}
+.p-row .pd{width:56px;flex:none;color:var(--dim)}
+.p-row .pt{flex:1;text-align:right;font-variant-numeric:tabular-nums}
+.p-row .ps{width:36px;text-align:right}
+.p-row.cur{color:var(--ink)}
+.p-row.cur .pt{color:var(--jade);font-weight:600}
+.p-row.fut{opacity:.45}
+.ps.ok{color:var(--jade)} .ps.miss{color:var(--rose)}
 /* 目標頁 */
 .ph-now{font-size:.95rem;margin-bottom:10px}
 .ph-now b{color:var(--jade)}
@@ -302,6 +317,11 @@ nav{position:fixed;bottom:0;left:0;right:0;background:rgba(14,17,22,.92);backdro
         <div class="w-stat" id="ws-30d"><b>–</b><span>vs 30 天前</span></div>
       </div>
       <div class="chart-box"><svg id="w-chart" width="100%" height="100%" viewBox="0 0 400 170" preserveAspectRatio="none"></svg></div>
+    </div>
+    <div class="card">
+      <div class="sec-title"><h3>減 重 路 線</h3><small>88 → 76・9/30 前</small></div>
+      <div class="plan-hero" id="plan-hero"></div>
+      <div id="plan-rows"></div>
     </div>
     <div class="card">
       <div class="sec-title"><h3>近 期</h3><small id="w-more" style="cursor:pointer;color:var(--jade)"></small></div>
@@ -695,6 +715,61 @@ function renderStreak(){
   $('#hd-streak').textContent=s+' 天';
 }
 
+/* ─────────── 減重路線 ─────────── */
+const PLAN={s:'2026-07-16',sw:88,e:'2026-09-30',ew:76,step:1.1};
+function planRows(){
+  const rows=[{d:PLAN.s,t:PLAN.sw,label:'開始'}];
+  const t0=new Date(PLAN.s);
+  for(let i=1;i<=10;i++){
+    const d2=new Date(t0);d2.setDate(t0.getDate()+7*i);
+    rows.push({d:dstr(d2),t:Math.round((PLAN.sw-PLAN.step*i)*10)/10,label:'第 '+i+' 週'});
+  }
+  rows.push({d:PLAN.e,t:PLAN.ew,label:'結束'});
+  return rows;
+}
+function planAt(ds){
+  if(ds<PLAN.s||ds>PLAN.e)return null;
+  const t0=new Date(PLAN.s),t1=new Date(PLAN.e);
+  const f=(new Date(ds)-t0)/(t1-t0);
+  return Math.round((PLAN.sw+(PLAN.ew-PLAN.sw)*f)*10)/10;
+}
+function weightNear(ds){
+  const d0=new Date(ds);
+  for(let i=0;i<7;i++){const d2=new Date(d0);d2.setDate(d0.getDate()-i);const w=weights[dstr(d2)];if(w!=null)return w}
+  return null;
+}
+function renderPlan(){
+  const rows=planRows();
+  let ci=rows.findIndex(r=>r.d>=TODAY);
+  const over=ci===-1; if(over)ci=rows.length-1;
+  const keys=Object.keys(weights).sort();
+  const last=keys.length?weights[keys[keys.length-1]]:null;
+  const hero=$('#plan-hero');
+  if(over){
+    hero.innerHTML=last!=null&&last<=PLAN.ew+0.05?'<b>完成 76 kg 🎉</b>':'路線已結束・最終目標 <b>76 kg</b>';
+  }else{
+    const cur=rows[ci];
+    const diff=last!=null?Math.round((last-cur.t)*10)/10:null;
+    hero.innerHTML=`<span><b>${cur.label}</b>・${parseInt(cur.d.slice(5,7))}/${parseInt(cur.d.slice(8))} 前 ≤ <b>${cur.t} kg</b></span>`+
+      (diff==null?'':diff<=0?`<span class="ok">領先 ${Math.abs(diff).toFixed(1)}</span>`:`<span class="behind">還差 ${diff.toFixed(1)}</span>`);
+  }
+  const box=$('#plan-rows');box.innerHTML='';
+  rows.forEach((r,i)=>{
+    const row=document.createElement('div');
+    let cls='p-row',st='';
+    if(r.d<TODAY){
+      const w=weightNear(r.d);
+      if(w==null)st='<span class="ps">—</span>';
+      else if(w<=r.t+0.05)st='<span class="ps ok">✓</span>';
+      else st='<span class="ps miss">✗</span>';
+    }else if(i===ci&&!over){cls+=' cur';st='<span class="ps" style="color:var(--gold)">◆</span>';}
+    else{cls+=' fut';st='<span class="ps"></span>';}
+    row.className=cls;
+    row.innerHTML=`<span class="pl">${r.label}</span><span class="pd">${parseInt(r.d.slice(5,7))}/${parseInt(r.d.slice(8))}</span><span class="pt">${r.t.toFixed(1)} kg</span>${st}`;
+    box.appendChild(row);
+  });
+}
+
 /* ─────────── weight ─────────── */
 async function saveWeight(v){
   const kg=parseFloat(v);
@@ -711,7 +786,8 @@ function renderWeight(){
   const keys=Object.keys(weights).sort();
   const hint=$('#wq-hint');
   if(weights[TODAY])hint.textContent='今天：'+weights[TODAY]+' kg ✓';
-  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';return}
+  else{const pr=planRows().find(r=>r.d>=TODAY);if(pr&&TODAY<=PLAN.e)hint.textContent='本週 ≤ '+pr.t+' kg';}
+  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';renderPlan();return}
   const last=weights[keys[keys.length-1]];
   $('#ws-now').innerHTML=`<b>${last}</b><span>最新 (kg)</span>`;
   const diffTo=days=>{
@@ -737,8 +813,12 @@ function renderWeight(){
     const pad2=(mx-mn)*0.15||1;
     const X=i=>10+i*(380/(pts.length-1)), Y=v=>15+(mx+pad2-v)/((mx-mn)+pad2*2)*140;
     let path='M'+pts.map((p,i)=>X(i)+','+Y(p.v)).join(' L');
+    const planPts=pts.map((p,i)=>({i,v:planAt(p.k)})).filter(x=>x.v!=null);
+    if(planPts.length){mn=Math.min(mn,...planPts.map(x=>x.v));mx=Math.max(mx,...planPts.map(x=>x.v))}
     let goalLine='';
-    if(goal){const gy=Y(goal);goalLine=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#93B8E6" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#93B8E6" font-size="10" text-anchor="end">目標 ${goal}</text>`;}
+    if(planPts.length>=2){
+      goalLine=`<polyline points="${planPts.map(x=>X(x.i)+','+Y(x.v)).join(' ')}" fill="none" stroke="#93B8E6" stroke-width="1.5" stroke-dasharray="5 5" opacity=".85"/><text x="388" y="${Y(planPts[planPts.length-1].v)-6}" fill="#93B8E6" font-size="10" text-anchor="end">路線</text>`;
+    }else if(goal){const gy=Y(goal);goalLine=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#93B8E6" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#93B8E6" font-size="10" text-anchor="end">目標 ${goal}</text>`;}
     svg.innerHTML=`<path d="${path} L${X(pts.length-1)},165 L10,165 Z" fill="rgba(233,200,126,.10)"/>${goalLine}<path d="${path}" fill="none" stroke="#E9C87E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+
       pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="#E9C87E"/>`).join('')+
       `<text x="12" y="14" fill="#98A1B3" font-size="10">${mx} kg</text><text x="12" y="164" fill="#98A1B3" font-size="10">${mn} kg</text>`;
@@ -755,6 +835,7 @@ function renderWeight(){
     r.innerHTML=`<span class="d">${dd.getMonth()+1}/${dd.getDate()}（${WEEKS[dd.getDay()]}）</span><span>${weights[k]} kg${df!=null?`<span class="diff" style="color:${df>0?'var(--rose)':df<0?'var(--jade)':'var(--dim)'}">${df>0?'+':''}${df}</span>`:''}</span>`;
     list.appendChild(r);
   });
+  renderPlan();
 }
 
 /* ─────────── history (月曆) ─────────── */
