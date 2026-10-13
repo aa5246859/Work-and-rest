@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#15171A">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="goals-version" content="2026.10.13.5">
+<meta name="goals-version" content="2026.10.13.6">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -98,12 +98,12 @@ body{height:var(--app-height,var(--viewport-height))}
 .nav-in{min-height:56px}.nav-btn{min-height:54px;font-size:14px}.nav-btn svg{width:23px;height:23px}
 .del{width:40px;height:40px;min-width:40px;min-height:40px;margin-top:-2px;padding:0;border:1px solid #3F454D;border-radius:11px;background:#292D33;color:#A5ADB7;transition:color .15s,border-color .15s,background .15s}
 .del svg{width:18px;height:18px;pointer-events:none}.del:active{color:var(--jade);border-color:#80715B;background:#373127}
-.delete-layer{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:calc(18px + env(safe-area-inset-top,0px)) 20px calc(18px + env(safe-area-inset-bottom,0px));background:rgba(8,10,13,.7);touch-action:pan-y}
-.delete-layer[hidden]{display:none}.delete-card{width:min(100%,350px);max-height:100%;overflow-y:auto;overscroll-behavior:contain;padding:22px;border:1px solid #51565E;border-radius:21px;background:#25292F;box-shadow:0 16px 48px rgba(0,0,0,.28)}
-.delete-symbol{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:1px solid #615744;border-radius:13px;background:#373127;color:var(--jade);margin-bottom:15px}.delete-symbol svg{width:22px;height:22px}.delete-card h2{font-size:21px;line-height:1.4;font-weight:650;color:var(--ink)}
-#delete-help{margin-top:6px;font-size:14px;line-height:1.65;color:var(--mut)}.delete-item{margin:17px 0 20px;padding:13px;border:1px solid #414750;border-radius:11px;background:#1B1E23;font-size:18px;line-height:1.65;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
-.delete-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.delete-actions button{min-height:48px;border-radius:11px;font-family:inherit;font-size:17px;font-weight:600;padding:10px}.cancel-delete{border:1px solid #59616B;background:#30353D;color:var(--ink)}.confirm-delete{border:1px solid var(--jade);background:var(--jade);color:#202327}.delete-actions button:active{filter:brightness(.94)}
-@media(max-width:359px){.delete-layer{padding-left:16px;padding-right:16px}.delete-card{padding:19px}.v-input{grid-template-columns:72px minmax(0,1fr) auto}.v-input .btn{padding:0 10px}}
+.delete-layer{position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:calc(14px + env(safe-area-inset-top,0px)) 20px calc(14px + env(safe-area-inset-bottom,0px));background:rgba(8,10,13,.72);touch-action:pan-y;overscroll-behavior:contain}
+.delete-layer[hidden]{display:none}.delete-card{display:flex;flex-direction:column;width:min(100%,360px);max-height:100%;overflow-y:auto;overscroll-behavior:contain;padding:22px;border:1px solid #51565E;border-radius:22px;background:linear-gradient(155deg,#292D33 0%,#22252A 100%);box-shadow:0 20px 60px rgba(0,0,0,.38)}
+.delete-symbol{width:42px;height:42px;display:flex;align-items:center;justify-content:center;border:1px solid #615744;border-radius:14px;background:#373127;color:var(--jade);margin-bottom:15px}.delete-symbol svg{width:22px;height:22px}.delete-card h2{font-size:22px;line-height:1.4;font-weight:680;color:var(--ink);letter-spacing:-.02em}
+#delete-help{margin-top:7px;font-size:15px;line-height:1.65;color:var(--mut);overflow-wrap:anywhere}.delete-item{margin:16px 0 19px;padding:14px;border:1px solid #414750;border-radius:13px;background:#1B1E23;line-height:1.65;color:var(--ink);overflow-wrap:anywhere}.delete-item[hidden]{display:none}.delete-item strong{display:block;font-size:17px;font-weight:650;color:var(--jade)}.delete-item span{display:block;margin-top:5px;font-size:14px;line-height:1.7;color:var(--mut);white-space:pre-wrap}
+.delete-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}.delete-actions button{min-height:50px;border-radius:12px;font-family:inherit;font-size:16px;font-weight:650;padding:10px}.cancel-delete{border:1px solid #59616B;background:#30353D;color:var(--ink)}.confirm-delete{border:1px solid var(--jade);background:var(--jade);color:#202327}.delete-card[data-variant="danger"] .delete-symbol{border-color:#65544D;background:#382E2A;color:#D2A993}.delete-card[data-variant="danger"] .confirm-delete{border-color:#C49A80;background:#C49A80}.delete-actions button:active{filter:brightness(.94)}
+@media(max-width:359px){.delete-layer{padding-left:16px;padding-right:16px}.delete-card{padding:19px}.delete-item{margin:13px 0 15px}.v-input{grid-template-columns:72px minmax(0,1fr) auto}.v-input .btn{padding:0 10px}}
 </style>
 </head>
 <body>
@@ -292,11 +292,11 @@ body{height:var(--app-height,var(--viewport-height))}
 </div></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="delete-layer" id="delete-layer" hidden>
-  <div class="delete-card" role="dialog" aria-modal="true" aria-labelledby="delete-title" aria-describedby="delete-name delete-help">
-    <div class="delete-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg></div>
-    <h2 id="delete-title">刪除目標？</h2><p id="delete-help">此項目會從清單移除。</p>
-    <p class="delete-item" id="delete-name"></p>
-    <div class="delete-actions"><button type="button" class="cancel-delete" id="delete-cancel">取消</button><button type="button" class="confirm-delete" id="delete-confirm">刪除</button></div>
+  <div class="delete-card" data-variant="accent" role="dialog" aria-modal="true" aria-labelledby="delete-title" aria-describedby="delete-help delete-name">
+    <div class="delete-symbol" aria-hidden="true"></div>
+    <h2 id="delete-title">確認操作</h2><p id="delete-help"></p>
+    <div class="delete-item" id="delete-name"><strong id="delete-name-title"></strong><span id="delete-name-body"></span></div>
+    <div class="delete-actions"><button type="button" class="cancel-delete" id="delete-cancel">取消</button><button type="button" class="confirm-delete" id="delete-confirm">確認</button></div>
   </div>
 </div>
 
@@ -327,21 +327,33 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
 async function sget(k){try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null}catch(e){return null}}
 async function sset(k,v){try{await window.storage.set(k,JSON.stringify(v))}catch(e){toast('儲存失敗，再試一次')}}
 
-/* 清單刪除：自訂確認卡，支援取消、鍵盤與焦點還原。 */
+/* App 內確認卡：統一處理刪除、階段切換、備份匯入與登出。 */
 const deleteGlyph='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg>';
+const phaseGlyph='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18M3 12h18"/><path d="m7 8 5-5 5 5M7 16l5 5 5-5"/></svg>';
 let deletePending=null,deleteFocus=null;
-function askDelete(kind,name){
+function askAppConfirm({title,description,detailTitle='',detailBody='',confirmLabel='確認',variant='accent'}){
   if(deletePending)return Promise.resolve(false);
   deleteFocus=document.activeElement;
   if(deleteFocus&&/^(INPUT|SELECT|TEXTAREA)$/.test(deleteFocus.tagName))deleteFocus.blur();
-  $('#delete-title').textContent='刪除'+kind+'？';$('#delete-name').textContent=name;
+  const card=$('#delete-layer .delete-card');
+  card.dataset.variant=variant;
+  $('#delete-title').textContent=title;
+  $('#delete-help').textContent=description;
+  $('#delete-name-title').textContent=detailTitle;
+  $('#delete-name-body').textContent=detailBody;
+  $('#delete-name').hidden=!(detailTitle||detailBody);
+  $('.delete-symbol').innerHTML=variant==='danger'?deleteGlyph:phaseGlyph;
+  $('#delete-confirm').textContent=confirmLabel;
   $('.wrap').setAttribute('inert','');$('nav').setAttribute('inert','');$('#delete-layer').hidden=false;
   const promise=new Promise(resolve=>{deletePending=resolve});$('#delete-cancel').focus({preventScroll:true});return promise;
+}
+function askDelete(kind,name){
+  return askAppConfirm({title:'刪除'+kind+'？',description:'此項目會從清單移除。',detailTitle:name,confirmLabel:'刪除',variant:'danger'});
 }
 function finishDelete(accepted){
   if(!deletePending)return;const resolve=deletePending;deletePending=null;
   $('#delete-layer').hidden=true;$('.wrap').removeAttribute('inert');$('nav').removeAttribute('inert');
-  if(!accepted&&deleteFocus&&deleteFocus.isConnected)deleteFocus.focus({preventScroll:true});deleteFocus=null;resolve(accepted);
+  if(deleteFocus&&deleteFocus.isConnected)deleteFocus.focus({preventScroll:true});deleteFocus=null;resolve(accepted);
 }
 $('#delete-cancel').onclick=()=>finishDelete(false);$('#delete-confirm').onclick=()=>finishDelete(true);
 $('#delete-layer').onclick=e=>{if(e.target===$('#delete-layer'))finishDelete(false)};
@@ -664,7 +676,14 @@ function renderPhase(){
   phases.forEach((p,i)=>{
     const s=document.createElement('div');s.className='ph-step'+(i===pi?' cur':i<pi?' past':'');s.style.cursor='pointer';
     s.innerHTML=`<div class="no">${i<pi?'✓':i+1}</div><div class="tx"><b>${escapeHTML(p.t)}</b><span>${escapeHTML(p.d)}</span>${singPlan?`<small class="phase-length">${p.days} 天</small>`:''}</div>`;
-    s.onclick=async()=>{if(i===pi)return;const msg=i>pi?'確定升到「'+p.t+'」？\n'+phases[pi].g:'退回「'+p.t+'」多打底？穩紮穩打不丟臉。';if(!confirm(msg))return;
+    s.onclick=async()=>{if(i===pi)return;const forward=i>pi;const accepted=await askAppConfirm({
+        title:forward?'準備升到下一階嗎？':'確定退回這一階嗎？',
+        description:forward?'確認已達到目前階段的標準，再往下一階練習。':'回頭把基礎打穩，走穩一點也很好。',
+        detailTitle:p.t,
+        detailBody:forward?'目前階段標準：\n'+phases[pi].g:'退回後，會以這一階作為目前練習方向。',
+        confirmLabel:forward?'確認升階':'確認退回',
+        variant:'accent'
+      });if(!accepted)return;
       try{await choosePhase(i);syncSingDesc();renderPhase();renderToday(true);toast('已切換：'+p.t)}catch(err){toast('階段儲存失敗，請再試一次')}
     };box.appendChild(s);
   });
@@ -912,7 +931,7 @@ $('#bk-file').onchange=async e=>{
   try{
     const j=JSON.parse(await f.text());
     if(j.app!=='rike'||!j.data)throw 0;
-    if(!confirm('匯入會覆蓋目前資料，確定？'))return;
+    const accepted=await askAppConfirm({title:'匯入備份？',description:'匯入會取代目前這台裝置的紀錄，請先確認備份檔正確。',detailTitle:'將要匯入的檔案',detailBody:f.name,confirmLabel:'覆蓋並匯入',variant:'danger'});if(!accepted){e.target.value='';return;}
     for(const[k,v]of Object.entries(j.data)){if(k.startsWith('_'))continue;await window.storage.set(k,v)}
     toast('匯入完成，重新載入…');
     setTimeout(()=>location.reload(),800);
@@ -990,7 +1009,7 @@ function initSync(){
   function fonLogin(u){fuser=u;B.textContent='登出（'+u.email+'）';S.textContent='已登入';fpull(u)}
   function fonLogout(){fuser=null;B.textContent='使用 Google 登入';S.textContent='未登入・資料只在這台裝置'}
   B.onclick=async()=>{
-    if(fuser){if(confirm('登出？'))auth.signOut();return}
+    if(fuser){if(await askAppConfirm({title:'登出 Google 同步？',description:'登出後，這台裝置的本機紀錄仍會保留。',detailTitle:'下次可重新登入，繼續同步紀錄。',confirmLabel:'登出',variant:'danger'}))auth.signOut();return}
     const prov=new firebase.auth.GoogleAuthProvider();
     S.textContent='開啟登入…';
     try{
