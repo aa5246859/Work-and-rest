@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#F6F3EE">
-<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#15171A">
+<meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="goals-version" content="2026.10.13.3">
+<meta name="goals-version" content="2026.10.13.4">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -20,9 +20,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
 <style>
 
-:root{--bg:#F6F3EE;--card:#FFFFFF;--card2:#EEEAE3;--line:#DDDAD3;--ink:#203247;--mut:#596579;--dim:#657080;--jade:#2D5B7B;--jade-deep:#486F8B;--gold:#2D576E;--rose:#87643E;--r:16px}
+:root{--bg:#15171A;--card:#202327;--card2:#2B2F35;--line:#3A3F47;--ink:#E8E6E2;--mut:#B6BDC6;--dim:#929CA8;--jade:#CEB992;--jade-deep:#70604B;--gold:#9DB7C8;--rose:#C99F8F;--r:16px}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{font-size:17px;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:pan-y;color-scheme:light;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--bg)}
+html{font-size:17px;height:100%;overflow:hidden;overscroll-behavior:none;touch-action:pan-y;color-scheme:dark;-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--bg)}
 body{height:100vh;position:relative;height:var(--app-height,100dvh);min-height:0;width:100%;display:flex;flex-direction:column;align-items:center;overflow:hidden;overscroll-behavior:none;touch-action:pan-y;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;line-height:1.5;}
 button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 input:focus-visible,select:focus-visible{outline:none;border-color:var(--jade)}
@@ -34,34 +34,58 @@ header{flex:none;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 
 .streak{font-size:12px;color:var(--dim);text-align:right;line-height:1.4}.streak b{display:block;font-size:19px;font-weight:650;color:var(--jade);font-variant-numeric:tabular-nums}
 .page{display:none;flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:none;touch-action:pan-y;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:0 16px 22px;scroll-padding:12px}.page::-webkit-scrollbar{display:none}.page.act{display:block}
 .page-heading{margin:3px 3px 18px}.page-heading h1{font-size:27px;font-weight:750;letter-spacing:-.03em}.page-heading p{font-size:13px;color:var(--mut);margin-top:5px;line-height:1.65}
-.hero{background:#203247;color:#FFFFFF;border-radius:18px;padding:18px;margin-bottom:14px}
-.hero-eyebrow{font-size:12px;color:#BDD6E6;font-weight:550;letter-spacing:.08em;margin-bottom:8px}.hero-heading{display:flex;align-items:center;justify-content:space-between;gap:14px}.hero-txt{min-width:0}.hero-txt h2{font-size:21px;line-height:1.4;font-weight:650;letter-spacing:-.025em}.hero-heading b{display:flex;align-items:baseline;gap:3px;flex:none;font-size:32px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums}.hero-heading b i{font-size:13px;font-style:normal;color:#BFCBD6;font-weight:500}
-.ring{height:7px;margin-top:17px;overflow:hidden;border-radius:20px}.ring svg{display:block;width:100%;height:7px;overflow:visible}.ring .track{stroke:#526173}.ring .bar{stroke:#91B9D2;stroke-linecap:round;transition:stroke-dashoffset .45s ease}
-.hero-bottom{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:9px;font-size:12px;color:#C4CED9;line-height:1.6}.hero-bottom span{flex:none;font-variant-numeric:tabular-nums}.hero-bottom p{text-align:right;min-width:0}.hero.done-glow .hero-heading b{color:#BBD7E8}
-.card{background:var(--card);border:1px solid #E3DFD8;border-radius:var(--r);padding:16px;margin-bottom:14px}
+.hero{background:#E8E6E2;color:#202327;border-radius:18px;padding:18px;margin-bottom:14px}
+.hero-eyebrow{font-size:12px;color:#B6BDC6;font-weight:550;letter-spacing:.08em;margin-bottom:8px}.hero-heading{display:flex;align-items:center;justify-content:space-between;gap:14px}.hero-txt{min-width:0}.hero-txt h2{font-size:21px;line-height:1.4;font-weight:650;letter-spacing:-.025em}.hero-heading b{display:flex;align-items:baseline;gap:3px;flex:none;font-size:32px;line-height:1;font-weight:700;font-variant-numeric:tabular-nums}.hero-heading b i{font-size:13px;font-style:normal;color:#B6BDC6;font-weight:500}
+.ring{height:7px;margin-top:17px;overflow:hidden;border-radius:20px}.ring svg{display:block;width:100%;height:7px;overflow:visible}.ring .track{stroke:#414750}.ring .bar{stroke:#CEB992;stroke-linecap:round;transition:stroke-dashoffset .45s ease}
+.hero-bottom{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:9px;font-size:12px;color:#AFB7C1;line-height:1.6}.hero-bottom span{flex:none;font-variant-numeric:tabular-nums}.hero-bottom p{text-align:right;min-width:0}.hero.done-glow .hero-heading b{color:#DFCCAD}
+.card{background:var(--card);border:1px solid #33383F;border-radius:var(--r);padding:16px;margin-bottom:14px}
 .sec-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;min-width:0}.sec-title h3{font-size:17px;font-weight:650;line-height:1.5;flex:none}.sec-title small{font-size:12px;line-height:1.55;color:var(--dim);text-align:right;max-width:55%;min-width:0;overflow-wrap:anywhere}
 .section-kicker{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 3px 12px;font-size:21px;font-weight:700;letter-spacing:-.02em}.section-kicker span{font-size:12px;font-weight:400;color:var(--dim);letter-spacing:0}
-.routine-card{padding:0;border:0;background:transparent;margin-bottom:18px}.routine-card .sec-title{margin:0 3px 8px}.routine-card .sec-title h3{font-size:13px;color:var(--mut);font-weight:650;letter-spacing:.07em}.routine-card > div[id^="sec-"]{padding:0 15px;background:#FFFFFF;border:1px solid #E3DFD8;border-radius:14px;overflow:hidden}
-.task{display:flex;align-items:flex-start;gap:12px;padding:14px 0;min-height:52px;border-bottom:1px solid #ECE9E3;cursor:pointer;user-select:none;-webkit-user-select:none}.task:last-child{border-bottom:none}.tick{flex:none;width:23px;height:23px;margin-top:1px;border:1.5px solid #9AA1A9;border-radius:7px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}.tick svg{width:13px;height:13px;opacity:0;transform:scale(.5);transition:opacity .15s,transform .15s}.task.on .tick,.sub.on .tick{background:var(--jade);border-color:var(--jade)}.task.on .tick svg,.sub.on .tick svg{opacity:1;transform:scale(1)}
-.t-body{flex:1;min-width:0;overflow-wrap:anywhere}.t-name{font-size:17px;font-weight:500;line-height:1.55}.t-desc{font-size:13px;line-height:1.65;color:var(--mut);margin-top:3px}.task.on .t-name,.sub.on span{color:var(--dim);text-decoration:line-through;text-decoration-color:#BFC1C3}.t-badge{flex:none;padding:3px 7px;margin-top:2px;border:1px solid #E0DCD5;border-radius:7px;background:#F3F0EB;color:var(--mut);font-size:12px;font-variant-numeric:tabular-nums}.t-badge.full{background:#E8F0F5;border-color:#B9CDDA;color:var(--jade)}.chev{flex:none;width:19px;margin-top:4px;text-align:center;color:var(--dim);transition:transform .2s}.chev.open{transform:rotate(180deg)}
-.subs{display:none;margin:0 0 10px 11px;padding:0 0 0 22px;border-left:1px solid #CCD9E0}.subs.open{display:block}.sub{display:flex;align-items:center;gap:10px;min-height:44px;padding:9px 0;cursor:pointer;user-select:none;-webkit-user-select:none}.sub .tick{width:19px;height:19px;margin:0;border-radius:5px}.sub .tick svg{width:11px;height:11px}.sub span{font-size:15px;line-height:1.6;min-width:0;overflow-wrap:anywhere}.sub .cond{font-size:12px;font-style:normal;color:var(--gold);margin-left:5px;white-space:nowrap}
-.water-row{display:flex;gap:5px;padding-bottom:13px}.cup{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;height:42px;border:1px solid #D7DCE0;border-radius:9px;background:#F4F6F7;color:var(--mut);font-size:12px;font-variant-numeric:tabular-nums;cursor:pointer;user-select:none}.cup.fill{background:#2D576E;color:#FFFFFF;border-color:#2D576E}
-.daily-tools{padding:14px 15px}.quick-weight{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,168px);align-items:center;gap:12px;margin-bottom:13px;padding-bottom:14px;border-bottom:1px solid #E5E0D9}.quick-weight-label{min-width:0}.quick-weight-label h3{font-size:15px;font-weight:650}.quick-weight-label small{display:block;font-size:12px;color:var(--dim);line-height:1.55;margin-top:3px;overflow-wrap:anywhere}.quick-weight .w-input-row{margin:0;gap:7px}.unit-input{display:flex;align-items:center;flex:1;min-width:0;padding-right:8px;border:1px solid #DAD6CF;border-radius:10px;background:#F8F6F2}.unit-input input{width:100%;min-width:0;background:transparent!important;border:0!important;box-shadow:none!important;padding:9px 8px;text-align:center;font-size:18px;font-variant-numeric:tabular-nums}.unit-input span{flex:none;color:var(--dim);font-size:12px}.unit-input:focus-within{border-color:var(--jade)}.quick-weight .btn{padding:0 12px;font-size:14px}
-.training-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}.training-head .sec-title{margin:0;gap:9px;flex:none}.training-head .sec-title h3{font-size:15px}.training-head .wk-rest{font-size:12px;padding:5px 8px;min-height:32px;max-width:54%;line-height:1.55}.wk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.wk-btn{padding:9px 3px;text-align:center;border:1px solid #DDDAD3;border-radius:10px;background:#F8F6F2;cursor:pointer;user-select:none;transition:border-color .15s,background .15s}.wk-btn .zh{font-size:18px;font-weight:600}.wk-btn .st{font-size:12px;color:var(--dim);margin-top:2px}.wk-btn.week-done{border-color:#8FAFC4}.wk-btn.week-done .st{color:var(--jade)}.wk-btn.today{background:#E6EFF5;border-color:var(--jade)}.wk-btn.today .zh,.wk-btn.today .st{color:var(--jade)}.wk-rest{font-size:13px;color:var(--mut);padding:9px;border:1px solid #DDDAD3;border-radius:8px;line-height:1.55;text-align:center;background:#F8F6F2;cursor:pointer;overflow-wrap:anywhere}.wk-rest.on{background:#EAF0F3;border-color:#91A8B6;color:var(--gold)}.wk-note{font-size:12px;line-height:1.65;color:var(--dim);margin-top:9px}
-.w-input-row{display:flex;gap:8px;margin-bottom:14px}.w-input-row input{flex:1;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #DAD6CF;border-radius:10px;background:#F8F6F2;color:var(--ink);font-size:17px;outline:none}.w-input-row input::placeholder,.goal-row input::placeholder{color:var(--dim);font-size:14px}.w-input-row input:focus{border-color:var(--jade);box-shadow:0 0 0 2px #DDEAF2}.btn{flex:none;min-height:44px;padding:0 15px;border:1px solid var(--jade);border-radius:10px;background:var(--jade);color:#FFFFFF;font-size:15px;font-weight:600;white-space:nowrap;transition:filter .15s,transform .15s}.btn:active{filter:brightness(.92);transform:scale(.98)}.btn.sq{width:44px;padding:0;display:flex;align-items:center;justify-content:center}.btn.sq svg{width:18px;height:18px}#sync-btn{white-space:normal;line-height:1.6;overflow-wrap:anywhere}
-.goal-row{display:flex;align-items:center;gap:9px;padding:8px 11px;min-height:48px;margin-bottom:16px;border:1px solid #DAD6CF;border-radius:10px;background:#F8F6F2}.goal-row .lab{font-size:14px;color:var(--mut);flex:none}.goal-row input{flex:1;min-width:0;border:0;outline:none;background:transparent;color:var(--ink);font-size:17px}.goal-row .g-set{flex:none;font-size:14px;padding:6px 4px;color:var(--jade);cursor:pointer}.v-input{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:7px;margin-bottom:12px}.v-input select{width:100%;min-width:0;padding:11px 7px;font-size:17px;color:var(--ink);background:#F8F6F2;border:1px solid #DAD6CF;border-radius:10px;outline:none}.v-input .btn{padding:0 12px}.del{flex:none;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:34px;color:var(--dim);font-size:19px;cursor:pointer}.del:active{color:var(--rose)}
-.w-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:17px}.w-stat{padding:14px 9px;text-align:left;border-radius:12px;background:#F2F4F5}.w-stat b{display:block;font-size:25px;font-weight:650;line-height:1.35;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.w-stat span{font-size:12px;color:var(--mut);margin-top:4px;display:block}.w-stat .up{color:var(--rose)}.w-stat .dn{color:var(--gold)}.chart-box{height:170px;margin:10px 0 4px;overflow:hidden}.w-list{margin-top:6px}.w-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:48px;padding:12px 0;border-bottom:1px solid #ECE9E3;font-size:15px;font-variant-numeric:tabular-nums}.w-row:last-child{border:0}.w-row .d{color:var(--mut);flex:none}.w-row .diff{font-size:12px;margin-left:7px}
-.plan-hero{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:13px;border-radius:10px;background:#EEF3F6;border:1px solid #CDDBE4;margin-bottom:10px;font-size:14px}.plan-hero b{color:var(--jade)}.plan-hero .ok{color:var(--gold);font-size:13px}.plan-hero .behind{color:var(--rose);font-size:13px}.p-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #ECE9E3;font-size:14px;color:var(--mut)}.p-row:last-child{border:0}.p-row .pl{width:64px;flex:none}.p-row .pd{width:56px;flex:none;color:var(--dim)}.p-row .pt{flex:1;text-align:right;font-variant-numeric:tabular-nums}.p-row .ps{width:30px;text-align:right}.p-row.cur{color:var(--ink);font-weight:600}.p-row.cur .pt{color:var(--jade)}.p-row.fut{opacity:.55}.ps.ok{color:var(--gold)}.ps.miss{color:var(--rose)}
-.ph-now{font-size:15px;line-height:1.75;margin-bottom:12px;overflow-wrap:anywhere}.ph-now b{color:var(--jade)}.ph-bar{height:5px;background:#EAE6DF;border-radius:20px;overflow:hidden;margin-bottom:12px}.ph-bar i{display:block;height:100%;background:var(--jade);border-radius:20px;transition:width .4s}.ph-step{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid #ECE9E3}.ph-step:last-child{border:0}.ph-step .no{flex:none;width:27px;height:27px;display:flex;align-items:center;justify-content:center;margin-top:2px;background:#F4F1EB;border:1px solid #DEDAD3;border-radius:50%;font-size:13px;color:var(--dim)}.ph-step.past .no{color:var(--gold);background:#EAF0F3;border-color:#B6C8D1}.ph-step.cur .no{color:#FFFFFF;background:var(--jade);border-color:var(--jade);font-weight:650}.ph-step .tx{min-width:0;overflow-wrap:anywhere}.ph-step .tx b{display:block;font-size:16px;font-weight:600;margin-bottom:4px}.ph-step .tx span{font-size:13px;line-height:1.75;color:var(--mut)}.ph-step.cur .tx b{color:var(--jade)}
-.cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px}.cal-head .m{font-size:19px;font-weight:650}.cal-nav{display:flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;background:#F4F1EB;border:1px solid #DDDAD3;border-radius:10px;color:var(--mut);font-size:12px;cursor:pointer;user-select:none}.cal-nav.off{opacity:.3;pointer-events:none}.hm{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.hm .lab{font-size:12px;color:var(--dim);text-align:center;padding-bottom:5px}.hm .cell{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:1;min-width:0;border:1px solid #E3DFD8;border-radius:8px;background:#F2EFE9;color:var(--mut);font-size:13px;font-variant-numeric:tabular-nums}.hm .cell.blank{background:transparent;border-color:transparent}.hm .cell.future{opacity:.4}.hm .cell.l1{background:#E6EFF4;border-color:#CBDCE7}.hm .cell.l2{background:#B5CFDF;border-color:#99B9CD;color:#22445B}.hm .cell.l3{background:#486F8B;border-color:#486F8B;color:#FFFFFF}.hm .cell.l4{background:var(--jade);border-color:var(--jade);color:#FFFFFF;font-weight:650}.hm .cell.today-cell{outline:1.5px solid var(--gold);outline-offset:2px}.hm .cell .wk-dot{position:absolute;top:3px;right:3px;width:4px;height:4px;border-radius:50%;background:var(--gold)}.cal-stats{text-align:center;margin-top:17px;font-size:13px;line-height:1.7;color:var(--mut)}.cal-stats b{color:var(--jade)}.legend{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--dim)}.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
-.h-days{margin-top:4px}.h-row{display:flex;align-items:center;gap:9px;padding:12px 0;border-bottom:1px solid #ECE9E3}.h-row:last-child{border:0}.h-row .d{width:78px;flex:none;font-size:14px;color:var(--mut)}.h-bar{flex:1;min-width:0;height:5px;border-radius:20px;background:#EEEAE3;overflow:hidden}.h-bar i{display:block;height:100%;background:var(--jade);border-radius:20px}.h-row .p{width:36px;text-align:right;font-size:13px;font-variant-numeric:tabular-nums}.h-row .w{width:25px;flex:none;text-align:center;font-size:12px;color:var(--gold)}
-nav{position:relative;z-index:10;flex:0 0 auto;width:100%;max-width:500px;padding:5px 16px clamp(6px,calc(env(safe-area-inset-bottom,0px) - 14px),20px);border-top:1px solid #DDDAD3;background:#FFFFFF;touch-action:pan-y}.nav-in{display:flex;align-items:center;gap:5px;max-width:468px;min-height:52px;margin:0 auto}.nav-btn{position:relative;flex:1;min-width:0;min-height:48px;padding:6px 2px;border:0;border-radius:9px;background:transparent;color:#657080;font-size:12px;font-weight:500;line-height:1.25;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}.nav-btn svg{display:block;width:21px;height:21px;margin:0 auto 3px}.nav-btn.act{background:#E6EFF5;color:var(--jade);font-weight:650}
-.quote{text-align:center;font-size:13px;color:var(--dim);margin:24px 0 12px;letter-spacing:.035em}.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 36px);transform:translateX(-50%) translateY(10px);opacity:0;pointer-events:none;background:#203247;color:#FFFFFF;border:1px solid #203247;border-radius:12px;padding:11px 17px;text-align:center;font-size:14px;line-height:1.6;overflow-wrap:anywhere;z-index:20;transition:opacity .2s,transform .2s;box-shadow:0 5px 16px rgba(32,50,71,.15)}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.empty{padding:20px 4px;font-size:14px;line-height:1.7;text-align:center;color:var(--dim)}
+.routine-card{padding:0;border:0;background:transparent;margin-bottom:18px}.routine-card .sec-title{margin:0 3px 8px}.routine-card .sec-title h3{font-size:13px;color:var(--mut);font-weight:650;letter-spacing:.07em}.routine-card > div[id^="sec-"]{padding:0 15px;background:#202327;border:1px solid #33383F;border-radius:14px;overflow:hidden}
+.task{display:flex;align-items:flex-start;gap:12px;padding:14px 0;min-height:52px;border-bottom:1px solid #33383F;cursor:pointer;user-select:none;-webkit-user-select:none}.task:last-child{border-bottom:none}.tick{flex:none;width:23px;height:23px;margin-top:1px;border:1.5px solid #8D969F;border-radius:7px;background:#202327;display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s}.tick svg{width:13px;height:13px;opacity:0;transform:scale(.5);transition:opacity .15s,transform .15s}.task.on .tick,.sub.on .tick{background:var(--jade);border-color:var(--jade)}.task.on .tick svg,.sub.on .tick svg{opacity:1;transform:scale(1)}
+.t-body{flex:1;min-width:0;overflow-wrap:anywhere}.t-name{font-size:17px;font-weight:500;line-height:1.55}.t-desc{font-size:13px;line-height:1.65;color:var(--mut);margin-top:3px}.task.on .t-name,.sub.on span{color:var(--dim);text-decoration:line-through;text-decoration-color:#69717B}.t-badge{flex:none;padding:3px 7px;margin-top:2px;border:1px solid #3A3F47;border-radius:7px;background:#2B2F35;color:var(--mut);font-size:12px;font-variant-numeric:tabular-nums}.t-badge.full{background:#35312A;border-color:#6D604C;color:var(--jade)}.chev{flex:none;width:19px;margin-top:4px;text-align:center;color:var(--dim);transition:transform .2s}.chev.open{transform:rotate(180deg)}
+.subs{display:none;margin:0 0 10px 11px;padding:0 0 0 22px;border-left:1px solid #444B54}.subs.open{display:block}.sub{display:flex;align-items:center;gap:10px;min-height:44px;padding:9px 0;cursor:pointer;user-select:none;-webkit-user-select:none}.sub .tick{width:19px;height:19px;margin:0;border-radius:5px}.sub .tick svg{width:11px;height:11px}.sub span{font-size:15px;line-height:1.6;min-width:0;overflow-wrap:anywhere}.sub .cond{font-size:12px;font-style:normal;color:var(--gold);margin-left:5px;white-space:nowrap}
+.water-row{display:flex;gap:5px;padding-bottom:13px}.cup{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;height:42px;border:1px solid #3A434D;border-radius:9px;background:#252A31;color:var(--mut);font-size:12px;font-variant-numeric:tabular-nums;cursor:pointer;user-select:none}.cup.fill{background:#9DB7C8;color:#202327;border-color:#9DB7C8}
+.daily-tools{padding:14px 15px}.quick-weight{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,168px);align-items:center;gap:12px;margin-bottom:13px;padding-bottom:14px;border-bottom:1px solid #3A3F47}.quick-weight-label{min-width:0}.quick-weight-label h3{font-size:15px;font-weight:650}.quick-weight-label small{display:block;font-size:12px;color:var(--dim);line-height:1.55;margin-top:3px;overflow-wrap:anywhere}.quick-weight .w-input-row{margin:0;gap:7px}.unit-input{display:flex;align-items:center;flex:1;min-width:0;padding-right:8px;border:1px solid #414750;border-radius:10px;background:#1B1E23}.unit-input input{width:100%;min-width:0;background:transparent!important;border:0!important;box-shadow:none!important;padding:9px 8px;text-align:center;font-size:18px;font-variant-numeric:tabular-nums}.unit-input span{flex:none;color:var(--dim);font-size:12px}.unit-input:focus-within{border-color:var(--jade)}.quick-weight .btn{padding:0 12px;font-size:14px}
+.training-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px}.training-head .sec-title{margin:0;gap:9px;flex:none}.training-head .sec-title h3{font-size:15px}.training-head .wk-rest{font-size:12px;padding:5px 8px;min-height:32px;max-width:54%;line-height:1.55}.wk-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.wk-btn{padding:9px 3px;text-align:center;border:1px solid #3A3F47;border-radius:10px;background:#1B1E23;cursor:pointer;user-select:none;transition:border-color .15s,background .15s}.wk-btn .zh{font-size:18px;font-weight:600}.wk-btn .st{font-size:12px;color:var(--dim);margin-top:2px}.wk-btn.week-done{border-color:#A79170}.wk-btn.week-done .st{color:var(--jade)}.wk-btn.today{background:#373127;border-color:var(--jade)}.wk-btn.today .zh,.wk-btn.today .st{color:var(--jade)}.wk-rest{font-size:13px;color:var(--mut);padding:9px;border:1px solid #3A3F47;border-radius:8px;line-height:1.55;text-align:center;background:#1B1E23;cursor:pointer;overflow-wrap:anywhere}.wk-rest.on{background:#303740;border-color:#657684;color:var(--gold)}.wk-note{font-size:12px;line-height:1.65;color:var(--dim);margin-top:9px}
+.w-input-row{display:flex;gap:8px;margin-bottom:14px}.w-input-row input{flex:1;min-width:0;min-height:44px;padding:10px 12px;border:1px solid #414750;border-radius:10px;background:#1B1E23;color:var(--ink);font-size:17px;outline:none}.w-input-row input::placeholder,.goal-row input::placeholder{color:var(--dim);font-size:14px}.w-input-row input:focus{border-color:var(--jade);box-shadow:0 0 0 2px #3D3528}.btn{flex:none;min-height:44px;padding:0 15px;border:1px solid var(--jade);border-radius:10px;background:var(--jade);color:#202327;font-size:15px;font-weight:600;white-space:nowrap;transition:filter .15s,transform .15s}.btn:active{filter:brightness(.92);transform:scale(.98)}.btn.sq{width:44px;padding:0;display:flex;align-items:center;justify-content:center}.btn.sq svg{width:18px;height:18px}#sync-btn{white-space:normal;line-height:1.6;overflow-wrap:anywhere}
+.goal-row{display:flex;align-items:center;gap:9px;padding:8px 11px;min-height:48px;margin-bottom:16px;border:1px solid #414750;border-radius:10px;background:#1B1E23}.goal-row .lab{font-size:14px;color:var(--mut);flex:none}.goal-row input{flex:1;min-width:0;border:0;outline:none;background:transparent;color:var(--ink);font-size:17px}.goal-row .g-set{flex:none;font-size:14px;padding:6px 4px;color:var(--jade);cursor:pointer}.v-input{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:7px;margin-bottom:12px}.v-input select{width:100%;min-width:0;padding:11px 7px;font-size:17px;color:var(--ink);background:#1B1E23;border:1px solid #414750;border-radius:10px;outline:none}.v-input .btn{padding:0 12px}.del{flex:none;display:flex;align-items:center;justify-content:center;min-width:32px;min-height:34px;color:var(--dim);font-size:19px;cursor:pointer}.del:active{color:var(--rose)}
+.w-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:17px}.w-stat{padding:14px 9px;text-align:left;border-radius:12px;background:#292D33}.w-stat b{display:block;font-size:25px;font-weight:650;line-height:1.35;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.w-stat span{font-size:12px;color:var(--mut);margin-top:4px;display:block}.w-stat .up{color:var(--rose)}.w-stat .dn{color:var(--gold)}.chart-box{height:170px;margin:10px 0 4px;overflow:hidden}.w-list{margin-top:6px}.w-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:48px;padding:12px 0;border-bottom:1px solid #33383F;font-size:15px;font-variant-numeric:tabular-nums}.w-row:last-child{border:0}.w-row .d{color:var(--mut);flex:none}.w-row .diff{font-size:12px;margin-left:7px}
+.plan-hero{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:13px;border-radius:10px;background:#2B3037;border:1px solid #414B58;margin-bottom:10px;font-size:14px}.plan-hero b{color:var(--jade)}.plan-hero .ok{color:var(--gold);font-size:13px}.plan-hero .behind{color:var(--rose);font-size:13px}.p-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #33383F;font-size:14px;color:var(--mut)}.p-row:last-child{border:0}.p-row .pl{width:64px;flex:none}.p-row .pd{width:56px;flex:none;color:var(--dim)}.p-row .pt{flex:1;text-align:right;font-variant-numeric:tabular-nums}.p-row .ps{width:30px;text-align:right}.p-row.cur{color:var(--ink);font-weight:600}.p-row.cur .pt{color:var(--jade)}.p-row.fut{opacity:.55}.ps.ok{color:var(--gold)}.ps.miss{color:var(--rose)}
+.ph-now{font-size:15px;line-height:1.75;margin-bottom:12px;overflow-wrap:anywhere}.ph-now b{color:var(--jade)}.ph-bar{height:5px;background:#34383F;border-radius:20px;overflow:hidden;margin-bottom:12px}.ph-bar i{display:block;height:100%;background:var(--jade);border-radius:20px;transition:width .4s}.ph-step{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid #33383F}.ph-step:last-child{border:0}.ph-step .no{flex:none;width:27px;height:27px;display:flex;align-items:center;justify-content:center;margin-top:2px;background:#292D33;border:1px solid #3A3F47;border-radius:50%;font-size:13px;color:var(--dim)}.ph-step.past .no{color:var(--gold);background:#303740;border-color:#5C6C79}.ph-step.cur .no{color:#202327;background:var(--jade);border-color:var(--jade);font-weight:650}.ph-step .tx{min-width:0;overflow-wrap:anywhere}.ph-step .tx b{display:block;font-size:16px;font-weight:600;margin-bottom:4px}.ph-step .tx span{font-size:13px;line-height:1.75;color:var(--mut)}.ph-step.cur .tx b{color:var(--jade)}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px}.cal-head .m{font-size:19px;font-weight:650}.cal-nav{display:flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;background:#292D33;border:1px solid #3A3F47;border-radius:10px;color:var(--mut);font-size:12px;cursor:pointer;user-select:none}.cal-nav.off{opacity:.3;pointer-events:none}.hm{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.hm .lab{font-size:12px;color:var(--dim);text-align:center;padding-bottom:5px}.hm .cell{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:1;min-width:0;border:1px solid #33383F;border-radius:8px;background:#292D33;color:var(--mut);font-size:13px;font-variant-numeric:tabular-nums}.hm .cell.blank{background:transparent;border-color:transparent}.hm .cell.future{opacity:.4}.hm .cell.l1{background:#353A42;border-color:#454E59}.hm .cell.l2{background:#494239;border-color:#655A4A;color:#E8E6E2}.hm .cell.l3{background:#70604B;border-color:#70604B;color:#202327}.hm .cell.l4{background:var(--jade);border-color:var(--jade);color:#202327;font-weight:650}.hm .cell.today-cell{outline:1.5px solid var(--gold);outline-offset:2px}.hm .cell .wk-dot{position:absolute;top:3px;right:3px;width:4px;height:4px;border-radius:50%;background:var(--gold)}.cal-stats{text-align:center;margin-top:17px;font-size:13px;line-height:1.7;color:var(--mut)}.cal-stats b{color:var(--jade)}.legend{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:12px;font-size:12px;color:var(--dim)}.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.h-days{margin-top:4px}.h-row{display:flex;align-items:center;gap:9px;padding:12px 0;border-bottom:1px solid #33383F}.h-row:last-child{border:0}.h-row .d{width:78px;flex:none;font-size:14px;color:var(--mut)}.h-bar{flex:1;min-width:0;height:5px;border-radius:20px;background:#2B2F35;overflow:hidden}.h-bar i{display:block;height:100%;background:var(--jade);border-radius:20px}.h-row .p{width:36px;text-align:right;font-size:13px;font-variant-numeric:tabular-nums}.h-row .w{width:25px;flex:none;text-align:center;font-size:12px;color:var(--gold)}
+nav{position:relative;z-index:10;flex:0 0 auto;width:100%;max-width:500px;padding:5px 16px clamp(6px,calc(env(safe-area-inset-bottom,0px) - 14px),20px);border-top:1px solid #3A3F47;background:#202327;touch-action:pan-y}.nav-in{display:flex;align-items:center;gap:5px;max-width:468px;min-height:52px;margin:0 auto}.nav-btn{position:relative;flex:1;min-width:0;min-height:48px;padding:6px 2px;border:0;border-radius:9px;background:transparent;color:#929CA8;font-size:12px;font-weight:500;line-height:1.25;text-align:center;cursor:pointer;user-select:none;-webkit-user-select:none}.nav-btn svg{display:block;width:21px;height:21px;margin:0 auto 3px}.nav-btn.act{background:#373127;color:var(--jade);font-weight:650}
+.quote{text-align:center;font-size:13px;color:var(--dim);margin:24px 0 12px;letter-spacing:.035em}.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 36px);transform:translateX(-50%) translateY(10px);opacity:0;pointer-events:none;background:#E8E6E2;color:#202327;border:1px solid #E8E6E2;border-radius:12px;padding:11px 17px;text-align:center;font-size:14px;line-height:1.6;overflow-wrap:anywhere;z-index:20;transition:opacity .2s,transform .2s;box-shadow:0 5px 16px rgba(32,50,71,.15)}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.empty{padding:20px 4px;font-size:14px;line-height:1.7;text-align:center;color:var(--dim)}
 .card > .w-input-row:last-child{margin-bottom:0}.custom-todos{margin-top:20px}body.keyboard-open{height:var(--app-height)}.keyboard-open .wrap{padding-bottom:8px}.keyboard-open nav{display:none}.keyboard-open .toast{bottom:20px}
 @media(max-width:359px){header{padding-left:16px;padding-right:16px}.brand-caption{font-size:11px}.date-block .date{font-size:22px}.page{padding-left:12px;padding-right:12px}.hero{padding:15px}.hero-txt h2{font-size:19px}.hero-heading b{font-size:29px}.quick-weight{grid-template-columns:minmax(0,1fr) minmax(0,152px);gap:8px}.card{padding:14px}.routine-card{padding:0}.daily-tools{padding:13px}.training-head{gap:8px}.training-head .sec-title h3{font-size:14px}.v-input{grid-template-columns:66px minmax(0,1fr) auto;gap:6px}.v-input .btn{padding:0 9px}.section-kicker span{font-size:11px}.hm{gap:5px}}
-@media(min-width:600px){.wrap{border-left:1px solid #DDDAD3;border-right:1px solid #DDDAD3}.page{padding-left:24px;padding-right:24px}header{padding-left:24px;padding-right:24px}.quick-weight{grid-template-columns:minmax(0,1fr) 190px}}
-@media(hover:hover){.task:hover,.sub:hover{background:#FBF8F4}.wk-btn:hover,.cup:hover{border-color:var(--jade)}.nav-btn:hover{color:var(--ink)}.nav-btn.act:hover{color:var(--jade)}}
+@media(min-width:600px){.wrap{border-left:1px solid #3A3F47;border-right:1px solid #3A3F47}.page{padding-left:24px;padding-right:24px}header{padding-left:24px;padding-right:24px}.quick-weight{grid-template-columns:minmax(0,1fr) 190px}}
+@media(hover:hover){.task:hover,.sub:hover{background:#292D33}.wk-btn:hover,.cup:hover{border-color:var(--jade)}.nav-btn:hover{color:var(--ink)}.nav-btn.act:hover{color:var(--jade)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* 石墨灰表面、霧銀文字、少量香檳重點；進度卡融入整體。 */
+.hero{background:#25282D;color:var(--ink);border:1px solid #41454A;padding:18px;border-radius:16px}
+.hero-heading b{color:#E6D4B4}.hero-eyebrow{color:var(--mut);letter-spacing:.03em}.hero-bottom{color:var(--mut)}
+.ring .track{stroke:#42474E}.ring .bar{stroke:var(--jade)}
+.card{border-color:#34383F}.routine-card{border:0}.routine-card > div[id^="sec-"]{background:var(--card);border-color:#34383F}
+.tick{background:#25292F}.task.on .tick,.sub.on .tick{background:var(--jade)}
+.hm .cell.l3{color:var(--ink)}.hm .cell.l4{color:#202327}.w-stat .dn{color:var(--gold)}
+nav{background:#1D2025;border-color:#34383F}.nav-btn.act{background:#373127;color:var(--jade)}
+.toast{background:#33383F;color:var(--ink);border-color:#515962}.plan-hero{background:#2B3037;border-color:#414B58}
+.chart-box.empty-chart{height:70px;margin:6px 0}.t-desc,.ph-step .tx span{white-space:pre-line}
+.plan-dates{font-size:12px;color:var(--dim);margin:-4px 0 12px;line-height:1.6}
+.plan-editor{margin:10px 0 16px;border:1px solid #43484F;border-radius:12px;overflow:hidden;background:#25292F}
+.plan-editor > summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px;font-size:15px;font-weight:600;color:var(--jade);cursor:pointer}
+.plan-editor > summary::-webkit-details-marker,.stage-editor > summary::-webkit-details-marker{display:none}
+.plan-editor > summary span{font-size:12px;font-weight:400;color:var(--dim);text-align:right}.plan-editor[open] > summary{border-bottom:1px solid #414750}
+.plan-editor form{padding:14px}.plan-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 10px}.plan-field{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px;line-height:1.5;color:var(--mut)}.plan-field.full{grid-column:1/-1}
+.plan-field input,.plan-field select,.plan-field textarea{display:block;width:100%;max-width:100%;min-width:0;min-height:44px;padding:10px;border-radius:9px;border:1px solid #515962;background:#1B1E23;color:var(--ink);font-family:inherit;font-size:17px;line-height:1.5;outline:none}
+.plan-field input[type=date]{min-width:0;-webkit-appearance:none;appearance:none}.plan-field textarea{resize:vertical;white-space:pre-wrap}.plan-field input:focus,.plan-field select:focus,.plan-field textarea:focus{border-color:var(--jade)}
+.editor-note{font-size:12px;line-height:1.7;color:var(--dim);margin-bottom:13px}.editor-note-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.editor-note-row .editor-note{flex:1;min-width:0}
+.text-btn{flex:none;padding:4px 0 8px;border:0;background:transparent;color:var(--jade);font-size:13px;font-weight:600;line-height:1.5}.plan-message{margin:13px 0;font-size:12px;line-height:1.75;color:var(--mut)}.plan-message.error{color:var(--rose)}.editor-save{width:100%;margin-top:2px}.btn:disabled{opacity:.5;cursor:wait}
+.stage-editor{margin-top:12px;border:1px solid #43484F;border-radius:10px;overflow:hidden}.stage-editor > summary{list-style:none;padding:11px;display:flex;gap:9px;align-items:baseline;font-size:13px;color:var(--dim);cursor:pointer}.stage-editor > summary span{color:var(--ink);font-size:14px;min-width:0;overflow-wrap:anywhere}.stage-editor[open] > summary{border-bottom:1px solid #414750}.stage-editor .plan-fields{padding:12px}.phase-length{display:block;color:var(--dim);font-size:12px;margin-top:5px}
+@media(max-width:359px){.plan-editor form{padding:12px}.plan-fields{gap:12px 8px}.plan-field input,.plan-field textarea,.plan-field select{padding:9px;font-size:16px}.editor-note-row{flex-wrap:wrap}.plan-editor > summary span{font-size:11px}}
+
 </style>
 </head>
 <body>
@@ -84,7 +108,7 @@ nav{position:relative;z-index:10;flex:0 0 auto;width:100%;max-width:500px;paddin
       <div class="hero-eyebrow">今日進度</div>
       <div class="hero-heading"><div class="hero-txt"><h2 id="hero-title">今天，進步 1%</h2></div><b id="ring-pct">0%</b></div>
       <div class="ring"><svg viewBox="0 0 260 7" preserveAspectRatio="none" aria-hidden="true">
-        <defs><linearGradient id="ringGrad"><stop offset="0%" stop-color="#91B9D2"/><stop offset="100%" stop-color="#91B9D2"/></linearGradient></defs>
+        <defs><linearGradient id="ringGrad"><stop offset="0%" stop-color="#CEB992"/><stop offset="100%" stop-color="#CEB992"/></linearGradient></defs>
         <path class="track" d="M4 3.5H255.3" fill="none" stroke-width="7" stroke-linecap="round"/>
         <path class="bar" id="ring-bar" d="M4 3.5H255.3" fill="none" stroke-width="7" stroke-dasharray="251.3" stroke-dashoffset="251.3"/>
       </svg></div>
@@ -126,6 +150,19 @@ nav{position:relative;z-index:10;flex:0 0 auto;width:100%;max-width:500px;paddin
       <div class="sec-title"><h3>唱歌路線</h3><small id="ph-day"></small></div>
       <div class="ph-now" id="ph-now"></div>
       <div class="ph-bar"><i id="ph-bar-i" style="width:0%"></i></div>
+      <details class="plan-editor" id="sp-editor"><summary>調整／重新開始<span>日期、階段與目標</span></summary>
+        <form id="sp-form" novalidate>
+          <div class="editor-note-row"><p class="editor-note">天數是參考；手動模式由你決定何時進階。</p><button type="button" class="text-btn" id="sp-restart">用重啟範本</button></div>
+          <div class="plan-fields">
+            <label class="plan-field full">起始日<input type="date" id="sp-start" required></label>
+            <label class="plan-field">階段切換<select id="sp-mode"><option value="manual">手動過關</option><option value="auto">依天數切換</option></select></label>
+            <label class="plan-field">目標穩定音階<select id="sp-target"></select></label>
+          </div>
+          <div id="sp-stage-fields"></div>
+          <p class="plan-message" id="sp-preview" role="status"></p>
+          <button type="submit" class="btn editor-save" id="sp-save">儲存唱歌計畫</button>
+        </form>
+      </details>
       <div id="ph-steps"></div>
     </div>
     <div class="card">
@@ -171,7 +208,22 @@ nav{position:relative;z-index:10;flex:0 0 auto;width:100%;max-width:500px;paddin
       <div class="chart-box"><svg id="w-chart" width="100%" height="100%" viewBox="0 0 400 170" preserveAspectRatio="none"></svg></div>
     </div>
     <div class="card">
-      <div class="sec-title"><h3>減重路線</h3><small>88 → 76・9/30 前</small></div>
+      <div class="sec-title"><h3>減重路線</h3><small id="plan-meta"></small></div>
+      <div class="plan-dates" id="plan-dates"></div>
+      <details class="plan-editor" id="wp-editor"><summary>設定減重計畫<span>目標與期限</span></summary>
+        <form id="wp-form" novalidate>
+          <p class="editor-note">重新訂路線會保留你的體重與每日紀錄。</p>
+          <div class="plan-fields">
+            <label class="plan-field full">起始日<input type="date" id="wp-start" required></label>
+            <label class="plan-field">起始體重 · kg<input type="number" inputmode="decimal" step="0.1" min="25" max="250" id="wp-start-kg" placeholder="目前量到的體重" required></label>
+            <label class="plan-field">目標體重 · kg<input type="number" inputmode="decimal" step="0.1" min="25" max="250" id="wp-target-kg" placeholder="想達到的體重" required></label>
+            <label class="plan-field full">預計達成日<input type="date" id="wp-end" required></label>
+          </div>
+          <p class="plan-message" id="wp-preview" role="status"></p>
+          <button type="submit" class="btn editor-save" id="wp-save">儲存減重計畫</button>
+        </form>
+      </details>
+
       <div class="plan-hero" id="plan-hero"></div>
       <div id="plan-rows"></div>
     </div>
@@ -192,7 +244,7 @@ nav{position:relative;z-index:10;flex:0 0 auto;width:100%;max-width:500px;paddin
       </div>
       <div class="hm" id="hm"></div>
       <div class="cal-stats" id="cal-stats"></div>
-      <div class="legend">少 <i style="background:var(--card2)"></i><i style="background:#E6EFF4"></i><i style="background:#B5CFDF"></i><i style="background:var(--jade-deep)"></i><i style="background:var(--jade)"></i> 多　<span style="color:var(--gold)">●</span> 有運動</div>
+      <div class="legend">少 <i style="background:var(--card2)"></i><i style="background:#353A42"></i><i style="background:#494239"></i><i style="background:var(--jade-deep)"></i><i style="background:var(--jade)"></i> 多　<span style="color:var(--gold)">●</span> 有運動</div>
     </div>
     <div class="card">
       <div class="sec-title"><h3>雲端同步</h3><small id="sync-status">載入中…</small></div>
@@ -311,6 +363,80 @@ let goals=null;     // 目標清單 [{n,on}]
 let singStart=null; // 唱歌計畫起始日
 let phaseOv=null;   // 手動指定階段（null=依日期自動）
 
+/* 使用者計畫：舊資料繼續可讀，新計畫由設定決定。 */
+let weightPlan=null, singPlan=null, singDraftRestart=false;
+const escapeHTML=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function validPlanDate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&s>='2000-01-01'&&s<='2100-12-31'&&dstr(new Date(s+'T00:00:00'))===s}
+function calendarDays(a,b){const n=s=>{const p=s.split('-').map(Number);return Date.UTC(p[0],p[1]-1,p[2])};return Math.round((n(b)-n(a))/864e5)}
+function planDateAdd(s,n){const d=new Date(s+'T00:00:00');d.setDate(d.getDate()+n);return dstr(d)}
+function normalizedWeightPlan(p){
+  if(!p||!validPlanDate(p.s)||!validPlanDate(p.e))return null;
+  const days=calendarDays(p.s,p.e),sw=Math.round(Number(p.sw)*10)/10,ew=Math.round(Number(p.ew)*10)/10;
+  if(days<1||days>730||!Number.isFinite(sw)||!Number.isFinite(ew)||sw<25||sw>250||ew<25||ew>=sw)return null;
+  return{s:p.s,e:p.e,sw:Math.round(sw*10)/10,ew:Math.round(ew*10)/10};
+}
+function normalizedSingPlan(p){
+  if(!p||!validPlanDate(p.s)||!['auto','manual'].includes(p.mode)||!Number.isInteger(p.note)||p.note<0||p.note>=NOTES.length||!Array.isArray(p.phases)||p.phases.length!==4)return null;
+  const phases=[];
+  for(const q of p.phases){
+    if(!q||typeof q.t!=='string'||typeof q.d!=='string'||typeof q.g!=='string'||!q.t.trim()||!q.d.trim()||!q.g.trim()||q.t.length>60||q.d.length>400||q.g.length>300||!Number.isInteger(q.days)||q.days<1||q.days>365)return null;
+    phases.push({t:q.t.trim(),d:q.d.trim(),g:q.g.trim(),days:q.days});
+  }
+  const override=Number.isInteger(p.override)&&p.override>=0&&p.override<4?p.override:null;
+  return{s:p.s,mode:p.mode,note:p.note,phases,override};
+}
+function currentWeightPlan(){return weightPlan||PLAN}
+function currentPhases(){return singPlan?singPlan.phases:PHASES.map(p=>({...p,days:30}))}
+function voiceTarget(){return singPlan?singPlan.note:NOTES.indexOf('A4')}
+const RESTART_PHASES=[
+ {t:'暖聲與換聲連續',d:'以熟悉音域做輕滑音、唇顫音或吸管發聲，找連續與舒服的感覺，不反覆測最高音。',g:'暖聲與輕滑音可重複完成，練後不沙啞，隔天恢復正常。',days:30},
+ {t:'弱聲與音量控制',d:'練短句的小音量、乾淨起音與尾音，換聲時避免突然放大；嗓子不適就休息。',g:'同一句可用較輕音量重複唱，起音與尾音較穩定，沒有持續擠壓。',days:30},
+ {t:'歌曲運用',d:'用熟悉的流行抒情歌短句練習，再逐步接成段落；以穩定和表達為主。',g:'相同段落可重複唱，音量可控，練後與隔天恢復正常。',days:30},
+ {t:'穩定維持',d:'保留低負擔暖聲、短句練習與每週錄音對比；疲勞時減量，不補課。',g:'錄音能聽到更穩定的起音、尾音與音量控制，能應用在歌曲中。',days:30}
+];
+function showPlanMessage(id,text,error=false){const e=$(id);e.textContent=text;e.classList.toggle('error',error)}
+function fillWeightEditor(){
+  const p=weightPlan;
+  $('#wp-start').value=p?p.s:TODAY;$('#wp-start-kg').value=p?p.sw:(weights[TODAY]||'');$('#wp-target-kg').value=p?p.ew:(goal||'');$('#wp-end').value=p?p.e:'';
+  updateWeightPreview();
+}
+function updateWeightPreview(){
+  const p=normalizedWeightPlan({s:$('#wp-start').value,e:$('#wp-end').value,sw:$('#wp-start-kg').value,ew:$('#wp-target-kg').value});
+  showPlanMessage('#wp-preview',p?`共 ${calendarDays(p.s,p.e)} 天・預計平均每週 ${(7*(p.sw-p.ew)/calendarDays(p.s,p.e)).toFixed(2)} kg。路線是參考，不是每天都要達到的數字。`:'填入起始體重、目標與日期，即可產生每週參考路線。');
+}
+function fillSingEditor(useRestart=false){
+  singDraftRestart=useRestart;
+  const p=singPlan;
+  $('#sp-start').value=useRestart?TODAY:(p?p.s:singStart||TODAY);$('#sp-mode').value=useRestart?'manual':(phaseOv!=null?'manual':(p?p.mode:'auto'));
+  $('#sp-target').innerHTML=NOTES.map((n,i)=>`<option value="${i}">${n}</option>`).join('');$('#sp-target').value=useRestart?NOTES.indexOf('A4'):voiceTarget();
+  const phases=useRestart?RESTART_PHASES:currentPhases();
+  $('#sp-stage-fields').innerHTML=phases.map((p,i)=>`<details class="stage-editor"><summary>階段 ${i+1}<span>${escapeHTML(p.t)}</span></summary><div class="plan-fields"><label class="plan-field">階段名稱<input data-stage="${i}" data-field="t" maxlength="60" value="${escapeHTML(p.t)}"></label><label class="plan-field">天數<input type="number" inputmode="numeric" min="1" max="365" data-stage="${i}" data-field="days" value="${p.days}"></label><label class="plan-field full">練習內容<textarea rows="3" data-stage="${i}" data-field="d" maxlength="400">${escapeHTML(p.d)}</textarea></label><label class="plan-field full">過關標準<textarea rows="3" data-stage="${i}" data-field="g" maxlength="300">${escapeHTML(p.g)}</textarea></label></div></details>`).join('');
+  showPlanMessage('#sp-preview',useRestart?'範本已帶入，確認內容後按「儲存唱歌計畫」。':'修改起始日可重新開始；原有音域與每日紀錄會保留。');
+}
+$('#wp-editor').addEventListener('toggle',()=>{if($('#wp-editor').open)fillWeightEditor()});
+$('#sp-editor').addEventListener('toggle',()=>{if($('#sp-editor').open)fillSingEditor()});
+for(const id of ['wp-start','wp-start-kg','wp-target-kg','wp-end'])$('#'+id).addEventListener('input',updateWeightPreview);
+$('#wp-form').addEventListener('submit',async e=>{
+  e.preventDefault();const b=$('#wp-save');if(b.disabled)return;
+  const p=normalizedWeightPlan({s:$('#wp-start').value,e:$('#wp-end').value,sw:$('#wp-start-kg').value,ew:$('#wp-target-kg').value});
+  if(!p){showPlanMessage('#wp-preview','請確認日期順序（最長兩年），目標體重須小於起始體重，體重範圍為 25–250 kg。',true);return}
+  b.disabled=true;
+  try{await window.storage.set('weightPlan',JSON.stringify(p));weightPlan=p;goal=p.ew;await sset('goal',goal);$('#g-input').value=goal;document.activeElement.blur?.();$('#wp-editor').open=false;renderWeight();toast('新減重路線已儲存，舊紀錄保留')}
+  catch(err){showPlanMessage('#wp-preview','計畫儲存失敗，請再試一次。',true)}finally{b.disabled=false}
+});
+$('#sp-restart').onclick=()=>fillSingEditor(true);
+$('#sp-form').addEventListener('submit',async e=>{
+  e.preventDefault();const b=$('#sp-save');if(b.disabled)return;
+  const phases=[0,1,2,3].map(i=>{const val=f=>$(`[data-stage="${i}"][data-field="${f}"]`).value;return{t:val('t'),d:val('d'),g:val('g'),days:Number(val('days'))}});
+  const s=$('#sp-start').value,mode=$('#sp-mode').value;
+  const p=normalizedSingPlan({s,mode,note:Number($('#sp-target').value),phases,override:mode==='manual'?(singDraftRestart||s!==singStart?0:phaseIdx()):null});
+  if(!p){showPlanMessage('#sp-preview','請填完整四個階段；每階段天數為 1–365 天，日期與目標音階也須有效。',true);return}
+  b.disabled=true;
+  try{await window.storage.set('singPlan',JSON.stringify(p));singPlan=p;singStart=p.s;phaseOv=p.override;await sset('singStart',singStart);document.activeElement.blur?.();$('#sp-editor').open=false;syncSingDesc();renderPhase();renderToday(true);renderVoice();toast('唱歌計畫已更新，音域紀錄保留')}
+  catch(err){showPlanMessage('#sp-preview','計畫儲存失敗，請再試一次。',true)}finally{b.disabled=false}
+});
+
+
 function totalUnits(){
   let n=0;
   for(const sec of Object.values(SECTIONS)) for(const t of sec){
@@ -332,7 +458,7 @@ function doneUnits(){
 function pct(){ return Math.round(doneUnits()/totalUnits()*100); }
 
 /* ─────────── render: today ─────────── */
-const tickSVG='<svg viewBox="0 0 16 16" fill="none" stroke="#FFFFFF" stroke-width="2.6"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>';
+const tickSVG='<svg viewBox="0 0 16 16" fill="none" stroke="#202327" stroke-width="2.6"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg>';
 function renderSection(el,list){
   el.innerHTML='';
   for(const t of list){
@@ -342,7 +468,7 @@ function renderSection(el,list){
       const allOn=arr.length===t.subs.length&&arr.every(Boolean);
       const cnt=arr.filter(Boolean).length;
       row.className='task'+(allOn?' on':'');
-      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${t.n}</div>${t.d?`<div class="t-desc">${t.d}</div>`:''}</div><div class="t-badge${allOn?' full':''}">${cnt}/${t.subs.length}</div><div class="chev" data-ch="${t.id}">▾</div>`;
+      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${escapeHTML(t.n)}</div>${t.d?`<div class="t-desc">${escapeHTML(t.d)}</div>`:''}</div><div class="t-badge${allOn?' full':''}">${cnt}/${t.subs.length}</div><div class="chev" data-ch="${t.id}">▾</div>`;
       const subsBox=document.createElement('div');
       subsBox.className='subs'; subsBox.dataset.sb=t.id;
       t.subs.forEach((s,i)=>{
@@ -362,7 +488,7 @@ function renderSection(el,list){
       if(cnt>0&&!allOn){subsBox.classList.add('open');row.querySelector('.chev').classList.add('open')}
     }else if(t.water){
       row.className='task'+(day.water>=6?' on':'');
-      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${t.n}</div><div class="t-desc">一格 500cc，喝完點一格</div></div><div class="t-badge${day.water>=6?' full':''}">${day.water*500}cc</div>`;
+      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${escapeHTML(t.n)}</div><div class="t-desc">一格 500cc，喝完點一格</div></div><div class="t-badge${day.water>=6?' full':''}">${day.water*500}cc</div>`;
       const cups=document.createElement('div');cups.className='water-row';
       for(let i=0;i<6;i++){
         const c=document.createElement('div');
@@ -375,7 +501,7 @@ function renderSection(el,list){
       el.appendChild(row);el.appendChild(cups);
     }else{
       row.className='task'+(day.done[t.id]?' on':'');
-      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${t.n}</div>${t.d?`<div class="t-desc">${t.d}</div>`:''}</div>`;
+      row.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${escapeHTML(t.n)}</div>${t.d?`<div class="t-desc">${escapeHTML(t.d)}</div>`:''}</div>`;
       row.onclick=async()=>{day.done[t.id]=!day.done[t.id];await saveDay();renderToday(true)};
       el.appendChild(row);
     }
@@ -436,7 +562,7 @@ function renderTodos(){
   list.forEach((t,i)=>{
     const r=document.createElement('div');
     r.className='task'+(t.on?' on':'');
-    r.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${t.n}</div></div><span class="del" data-i="${i}">✕</span>`;
+    r.innerHTML=`<div class="tick">${tickSVG}</div><div class="t-body"><div class="t-name">${escapeHTML(t.n)}</div></div><span class="del" data-i="${i}">✕</span>`;
     r.onclick=async e=>{
       if(e.target.closest('.del')){
         if(!confirm('刪掉「'+t.n+'」？'))return;
@@ -458,64 +584,59 @@ $('#todo-new').addEventListener('keydown',e=>{if(e.key==='Enter')$('#todo-add').
 
 /* ─────────── 目標頁 ─────────── */
 function phaseIdx(){
-  if(phaseOv!=null)return phaseOv;
+  if(phaseOv!=null)return Math.max(0,Math.min(3,phaseOv));
+  if(singPlan&&singPlan.mode==='manual')return 0;
   if(!singStart)return 0;
-  const days=Math.floor((today-new Date(singStart+'T00:00:00'))/(864e5));
-  return Math.min(3,Math.floor(days/30));
+  let days=Math.max(0,calendarDays(singStart,TODAY));
+  const phases=currentPhases();
+  for(let i=0;i<phases.length-1;i++){if(days<phases[i].days)return i;days-=phases[i].days}
+  return 3;
 }
-function syncSingDesc(){
-  const pi=phaseIdx();
-  const t=SECTIONS.pm.find(x=>x.id==='sing');
-  if(t)t.d=PHASES[pi].t+'：'+PHASES[pi].d;
+function syncSingDesc(){const p=currentPhases()[phaseIdx()],t=SECTIONS.pm.find(x=>x.id==='sing');if(t)t.d=p.t+'：'+p.d}
+async function choosePhase(i){
+  if(singPlan){const p={...singPlan,override:i};await window.storage.set('singPlan',JSON.stringify(p));singPlan=p}
+  else await window.storage.set('phaseOv',JSON.stringify(i));
+  phaseOv=i;
 }
 function renderPhase(){
-  const pi=phaseIdx();
-  const days=singStart?Math.floor((today-new Date(singStart+'T00:00:00'))/(864e5))+1:1;
-  $('#ph-day').textContent='第 '+days+' 天・'+(phaseOv!=null?'手動':'自動');
-  $('#ph-now').innerHTML='目前：<b>'+PHASES[pi].t+'</b><br><span style="font-size:0.842rem;color:var(--mut)">'+PHASES[pi].g+'</span>';
-  $('#ph-bar-i').style.width=Math.min(100,Math.round(days/90*100))+'%';
+  const pi=phaseIdx(),phases=currentPhases(),days=singStart?Math.max(0,calendarDays(singStart,TODAY)+1):1;
+  const manual=phaseOv!=null||(singPlan&&singPlan.mode==='manual');
+  $('#ph-day').textContent=singStart>TODAY?'預計 '+singStart+' 開始':'第 '+days+' 天・'+(manual?'手動':'自動');
+  $('#ph-now').innerHTML='目前：<b>'+escapeHTML(phases[pi].t)+'</b><br><span style="font-size:0.842rem;color:var(--mut)">'+escapeHTML(phases[pi].g)+'</span>';
+  const total=singPlan?phases.reduce((s,p)=>s+p.days,0):90;
+  $('#ph-bar-i').style.width=Math.min(100,Math.round(days/total*100))+'%';
   const box=$('#ph-steps');box.innerHTML='';
-  PHASES.forEach((p,i)=>{
-    const s=document.createElement('div');
-    s.className='ph-step'+(i===pi?' cur':i<pi?' past':'');
-    s.style.cursor='pointer';
-    s.innerHTML=`<div class="no">${i<pi?'✓':i+1}</div><div class="tx"><b>${p.t}</b><span>${p.d}</span></div>`;
-    s.onclick=async()=>{
-      if(i===pi)return;
-      const msg=i>pi?'確定升到「'+p.t+'」？\n'+PHASES[pi].g:'退回「'+p.t+'」多打底？穩紮穩打不丟臉。';
-      if(!confirm(msg))return;
-      phaseOv=i;await sset('phaseOv',phaseOv);
-      syncSingDesc();renderPhase();renderToday(true);
-      toast('已切換：'+p.t);
-    };
-    box.appendChild(s);
+  phases.forEach((p,i)=>{
+    const s=document.createElement('div');s.className='ph-step'+(i===pi?' cur':i<pi?' past':'');s.style.cursor='pointer';
+    s.innerHTML=`<div class="no">${i<pi?'✓':i+1}</div><div class="tx"><b>${escapeHTML(p.t)}</b><span>${escapeHTML(p.d)}</span>${singPlan?`<small class="phase-length">${p.days} 天</small>`:''}</div>`;
+    s.onclick=async()=>{if(i===pi)return;const msg=i>pi?'確定升到「'+p.t+'」？\n'+phases[pi].g:'退回「'+p.t+'」多打底？穩紮穩打不丟臉。';if(!confirm(msg))return;
+      try{await choosePhase(i);syncSingDesc();renderPhase();renderToday(true);toast('已切換：'+p.t)}catch(err){toast('階段儲存失敗，請再試一次')}
+    };box.appendChild(s);
   });
-  // 手動模式時提供恢復自動
-  if(phaseOv!=null){
-    const r=document.createElement('div');
-    r.className='wk-rest';r.style.marginTop='10px';
-    r.textContent='恢復依日期自動推進';
-    r.onclick=async()=>{phaseOv=null;await window.storage.delete('phaseOv').catch(()=>{});syncSingDesc();renderPhase();renderToday(true);toast('已恢復自動')};
-    box.appendChild(r);
+  if(phaseOv!=null||manual){
+    const r=document.createElement('div');r.className='wk-rest';r.style.marginTop='10px';r.textContent='恢復依日期自動推進';
+    r.onclick=async()=>{try{if(singPlan){const p={...singPlan,mode:'auto',override:null};await window.storage.set('singPlan',JSON.stringify(p));singPlan=p}else await window.storage.delete('phaseOv');phaseOv=null;syncSingDesc();renderPhase();renderToday(true);toast('已恢復自動')}catch(err){toast('設定儲存失敗，請再試一次')}};box.appendChild(r);
   }
 }
+
 function renderVoice(){
   const keys=Object.keys(voice).sort();
   const svg=$('#v-chart');
-  const targetIdx=NOTES.indexOf('A4');
+  const targetIdx=voiceTarget();
+  svg.setAttribute('viewBox',keys.length<2?'0 0 400 70':'0 0 400 170');svg.parentElement.classList.toggle('empty-chart',keys.length<2);
   if(keys.length<2){
-    svg.innerHTML='<text x="200" y="90" fill="#657080" font-size="14" text-anchor="middle">記錄兩天以上就會出現曲線</text>';
+    svg.innerHTML='<text x="200" y="38" fill="#929CA8" font-size="14" text-anchor="middle">記錄兩天以上就會出現曲線</text>';
   }else{
     const pts=keys.slice(-30).map(k=>({k,v:voice[k].n,q:voice[k].q}));
     const vs=pts.map(p=>p.v);
-    let mn=Math.min(...vs,targetIdx-1),mx=Math.max(...vs,targetIdx+1);
+    let mn=Math.min(...vs,Math.max(0,targetIdx-1)),mx=Math.max(...vs,Math.min(NOTES.length-1,targetIdx+1));
     const X=i=>10+i*(380/(pts.length-1)), Y=v=>15+(mx+.5-v)/((mx-mn)+1)*140;
     const gy=Y(targetIdx);
     let path='M'+pts.map((p,i)=>X(i)+','+Y(p.v)).join(' L');
-    svg.innerHTML=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#2D576E" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#2D576E" font-size="14" text-anchor="end">目標 A4</text>`+
-      `<path d="${path}" fill="none" stroke="#2D5B7B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+
-      pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="#2D5B7B"/>`).join('')+
-      `<text x="12" y="14" fill="#596579" font-size="14">${NOTES[mx]||''}</text><text x="12" y="164" fill="#596579" font-size="14">${NOTES[mn]||''}</text>`;
+    svg.innerHTML=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#9DB7C8" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#9DB7C8" font-size="14" text-anchor="end">目標 ${NOTES[targetIdx]}</text>`+
+      `<path d="${path}" fill="none" stroke="#CEB992" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+
+      pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="#CEB992"/>`).join('')+
+      `<text x="12" y="14" fill="#B6BDC6" font-size="14">${NOTES[mx]||''}</text><text x="12" y="164" fill="#B6BDC6" font-size="14">${NOTES[mn]||''}</text>`;
   }
   const list=$('#v-list');list.innerHTML='';
   if(!keys.length){list.innerHTML='<div class="empty">今天練完，記下最高「穩定」音（不是硬撐上去的）。</div>';return}
@@ -574,55 +695,26 @@ function renderStreak(){
 /* ─────────── 減重路線 ─────────── */
 const PLAN={s:'2026-07-16',sw:88,e:'2026-09-30',ew:76,step:1.1};
 function planRows(){
-  const rows=[{d:PLAN.s,t:PLAN.sw,label:'開始'}];
-  const t0=new Date(PLAN.s);
-  for(let i=1;i<=10;i++){
-    const d2=new Date(t0);d2.setDate(t0.getDate()+7*i);
-    rows.push({d:dstr(d2),t:Math.round((PLAN.sw-PLAN.step*i)*10)/10,label:'第 '+i+' 週'});
-  }
-  rows.push({d:PLAN.e,t:PLAN.ew,label:'結束'});
-  return rows;
+  const p=currentWeightPlan(),rows=[{d:p.s,t:p.sw,label:'開始'}];
+  if(!weightPlan){for(let i=1;i<=10;i++)rows.push({d:planDateAdd(p.s,7*i),t:Math.round((p.sw-p.step*i)*10)/10,label:'第 '+i+' 週'})}
+  else{const days=calendarDays(p.s,p.e);for(let n=7;n<days;n+=7)rows.push({d:planDateAdd(p.s,n),t:Math.round((p.sw+(p.ew-p.sw)*n/days)*10)/10,label:'第 '+n/7+' 週'})}
+  rows.push({d:p.e,t:p.ew,label:'結束'});return rows;
 }
-function planAt(ds){
-  if(ds<PLAN.s||ds>PLAN.e)return null;
-  const t0=new Date(PLAN.s),t1=new Date(PLAN.e);
-  const f=(new Date(ds)-t0)/(t1-t0);
-  return Math.round((PLAN.sw+(PLAN.ew-PLAN.sw)*f)*10)/10;
-}
-function weightNear(ds){
-  const d0=new Date(ds);
-  for(let i=0;i<7;i++){const d2=new Date(d0);d2.setDate(d0.getDate()-i);const w=weights[dstr(d2)];if(w!=null)return w}
-  return null;
-}
+function planAt(ds){const p=currentWeightPlan();if(ds<p.s||ds>p.e)return null;return Math.round((p.sw+(p.ew-p.sw)*calendarDays(p.s,ds)/calendarDays(p.s,p.e))*10)/10}
+function weightNear(ds){for(let i=0;i<7;i++){const date=planDateAdd(ds,-i);if(weightPlan&&date<weightPlan.s)continue;const w=weights[date];if(w!=null)return w}return null}
 function renderPlan(){
-  const rows=planRows();
-  let ci=rows.findIndex(r=>r.d>=TODAY);
-  const over=ci===-1; if(over)ci=rows.length-1;
-  const keys=Object.keys(weights).sort();
-  const last=keys.length?weights[keys[keys.length-1]]:null;
+  const p=currentWeightPlan(),rows=planRows();let ci=rows.findIndex(r=>r.d>=TODAY);const over=ci===-1;if(over)ci=rows.length-1;
+  const keys=Object.keys(weights).filter(k=>!weightPlan||(k>=p.s&&k<=TODAY)).sort();const last=keys.length?weights[keys[keys.length-1]]:null;
+  $('#plan-meta').textContent=p.sw+' → '+p.ew+' kg';$('#plan-dates').textContent=p.s+' — '+p.e+(weightPlan?'':'・原有計畫');
   const hero=$('#plan-hero');
-  if(over){
-    hero.innerHTML=last!=null&&last<=PLAN.ew+0.05?'<b>完成 76 kg 🎉</b>':'路線已結束・最終目標 <b>76 kg</b>';
-  }else{
-    const cur=rows[ci];
-    const diff=last!=null?Math.round((last-cur.t)*10)/10:null;
-    hero.innerHTML=`<span><b>${cur.label}</b>・${parseInt(cur.d.slice(5,7))}/${parseInt(cur.d.slice(8))} 前 ≤ <b>${cur.t} kg</b></span>`+
-      (diff==null?'':diff<=0?`<span class="ok">領先 ${Math.abs(diff).toFixed(1)}</span>`:`<span class="behind">還差 ${diff.toFixed(1)}</span>`);
-  }
+  if(TODAY<p.s&&weightPlan)hero.innerHTML='計畫將於 <b>'+p.s+'</b> 開始';
+  else if(over)hero.innerHTML=last!=null&&last<=p.ew+0.05?'<b>完成 '+p.ew+' kg 🎉</b>':'路線已結束・最終目標 <b>'+p.ew+' kg</b>';
+  else{const cur=rows[ci],diff=last!=null?Math.round((last-cur.t)*10)/10:null;hero.innerHTML=`<span><b>${cur.label}</b>・${parseInt(cur.d.slice(5,7))}/${parseInt(cur.d.slice(8))} 前 ≤ <b>${cur.t} kg</b></span>`+(diff==null?'':diff<=0?`<span class="ok">領先 ${Math.abs(diff).toFixed(1)}</span>`:`<span class="behind">還差 ${diff.toFixed(1)}</span>`)}
   const box=$('#plan-rows');box.innerHTML='';
-  rows.forEach((r,i)=>{
-    const row=document.createElement('div');
-    let cls='p-row',st='';
-    if(r.d<TODAY){
-      const w=weightNear(r.d);
-      if(w==null)st='<span class="ps">—</span>';
-      else if(w<=r.t+0.05)st='<span class="ps ok">✓</span>';
-      else st='<span class="ps miss">✗</span>';
-    }else if(i===ci&&!over){cls+=' cur';st='<span class="ps" style="color:var(--gold)">◆</span>';}
-    else{cls+=' fut';st='<span class="ps"></span>';}
-    row.className=cls;
-    row.innerHTML=`<span class="pl">${r.label}</span><span class="pd">${parseInt(r.d.slice(5,7))}/${parseInt(r.d.slice(8))}</span><span class="pt">${r.t.toFixed(1)} kg</span>${st}`;
-    box.appendChild(row);
+  rows.forEach((r,i)=>{const row=document.createElement('div');let cls='p-row',st='';
+    if(r.d<TODAY){const w=weightNear(r.d);st=w==null?'<span class="ps">—</span>':w<=r.t+0.05?'<span class="ps ok">✓</span>':'<span class="ps miss">✗</span>'}
+    else if(i===ci&&!over){cls+=' cur';st='<span class="ps" style="color:var(--gold)">◆</span>'}else{cls+=' fut';st='<span class="ps"></span>'}
+    row.className=cls;row.innerHTML=`<span class="pl">${r.label}</span><span class="pd">${parseInt(r.d.slice(5,7))}/${parseInt(r.d.slice(8))}</span><span class="pt">${r.t.toFixed(1)} kg</span>${st}`;box.appendChild(row);
   });
 }
 
@@ -640,10 +732,12 @@ async function saveWeight(v){
 }
 function renderWeight(){
   const keys=Object.keys(weights).sort();
+  const p=currentWeightPlan();
+  const chart=$('#w-chart');chart.setAttribute('viewBox',keys.length<2?'0 0 400 70':'0 0 400 170');chart.parentElement.classList.toggle('empty-chart',keys.length<2);
   const hint=$('#wq-hint');
   if(weights[TODAY])hint.textContent='今天：'+weights[TODAY]+' kg ✓';
-  else{const pr=planRows().find(r=>r.d>=TODAY);if(pr&&TODAY<=PLAN.e)hint.textContent='本週 ≤ '+pr.t+' kg';}
-  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';renderPlan();return}
+  else{const pr=planRows().find(r=>r.d>=TODAY);hint.textContent=pr&&TODAY>=p.s&&TODAY<=p.e?'本週 ≤ '+pr.t+' kg':'早上量完順手記';}
+  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';$('#ws-goal').innerHTML=goal?'<b>'+goal+'</b><span>目標 (kg)</span>':'<b>–</b><span>先設定目標</span>';chart.innerHTML='<text x="200" y="38" fill="#929CA8" font-size="14" text-anchor="middle">記錄兩天以上就會出現曲線</text>';renderPlan();return}
   const last=weights[keys[keys.length-1]];
   $('#ws-now').innerHTML=`<b>${last}</b><span>最新 (kg)</span>`;
   const diffTo=days=>{
@@ -661,23 +755,23 @@ function renderWeight(){
   // chart（近 30 筆）
   const pts=keys.slice(-30).map(k=>({k,v:weights[k]}));
   const svg=$('#w-chart');
-  if(pts.length<2){svg.innerHTML='<text x="200" y="90" fill="#657080" font-size="14" text-anchor="middle">記錄兩天以上就會出現曲線</text>';}
+  if(pts.length<2){svg.innerHTML='<text x="200" y="38" fill="#929CA8" font-size="14" text-anchor="middle">記錄兩天以上就會出現曲線</text>';}
   else{
     const vs=pts.map(p=>p.v);
     let mn=Math.min(...vs),mx=Math.max(...vs);
     if(goal){mn=Math.min(mn,goal);mx=Math.max(mx,goal)}
+    const planPts=planAt(TODAY)!=null?pts.map((p,i)=>({i,v:planAt(p.k)})).filter(x=>x.v!=null):[];
+    if(planPts.length){mn=Math.min(mn,...planPts.map(x=>x.v));mx=Math.max(mx,...planPts.map(x=>x.v))}
     const pad2=(mx-mn)*0.15||1;
     const X=i=>10+i*(380/(pts.length-1)), Y=v=>15+(mx+pad2-v)/((mx-mn)+pad2*2)*140;
     let path='M'+pts.map((p,i)=>X(i)+','+Y(p.v)).join(' L');
-    const planPts=pts.map((p,i)=>({i,v:planAt(p.k)})).filter(x=>x.v!=null);
-    if(planPts.length){mn=Math.min(mn,...planPts.map(x=>x.v));mx=Math.max(mx,...planPts.map(x=>x.v))}
     let goalLine='';
     if(planPts.length>=2){
-      goalLine=`<polyline points="${planPts.map(x=>X(x.i)+','+Y(x.v)).join(' ')}" fill="none" stroke="#2D576E" stroke-width="1.5" stroke-dasharray="5 5" opacity=".85"/><text x="388" y="${Y(planPts[planPts.length-1].v)-6}" fill="#2D576E" font-size="14" text-anchor="end">路線</text>`;
-    }else if(goal){const gy=Y(goal);goalLine=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#2D576E" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#2D576E" font-size="14" text-anchor="end">目標 ${goal}</text>`;}
-    svg.innerHTML=`<path d="${path} L${X(pts.length-1)},165 L10,165 Z" fill="rgba(45,91,123,.09)"/>${goalLine}<path d="${path}" fill="none" stroke="#2D5B7B" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+
-      pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="#2D5B7B"/>`).join('')+
-      `<text x="12" y="14" fill="#596579" font-size="14">${mx} kg</text><text x="12" y="164" fill="#596579" font-size="14">${mn} kg</text>`;
+      goalLine=`<polyline points="${planPts.map(x=>X(x.i)+','+Y(x.v)).join(' ')}" fill="none" stroke="#9DB7C8" stroke-width="1.5" stroke-dasharray="5 5" opacity=".85"/><text x="388" y="${Y(planPts[planPts.length-1].v)-6}" fill="#9DB7C8" font-size="14" text-anchor="end">路線</text>`;
+    }else if(goal){const gy=Y(goal);goalLine=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#9DB7C8" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#9DB7C8" font-size="14" text-anchor="end">目標 ${goal}</text>`;}
+    svg.innerHTML=`<path d="${path} L${X(pts.length-1)},165 L10,165 Z" fill="rgba(206,185,146,.09)"/>${goalLine}<path d="${path}" fill="none" stroke="#CEB992" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+
+      pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="#CEB992"/>`).join('')+
+      `<text x="12" y="14" fill="#B6BDC6" font-size="14">${mx} kg</text><text x="12" y="164" fill="#B6BDC6" font-size="14">${mn} kg</text>`;
   }
   // list
   const list=$('#w-list');list.innerHTML='';
@@ -787,10 +881,11 @@ $('#w-more').onclick=()=>{showAllW=!showAllW;renderWeight()};
 $('#g-save').onclick=async()=>{
   const v=parseFloat($('#g-input').value);
   if(!v||v<25||v>250){toast('目標數字怪怪的，再確認一下');return}
-  goal=Math.round(v*10)/10;
-  await sset('goal',goal);
-  toast('目標設定：'+goal+' kg');
-  renderWeight();
+  const next=Math.round(v*10)/10;
+  try{
+    if(weightPlan){const p=normalizedWeightPlan({...weightPlan,ew:next});if(!p){toast('目標須小於計畫起始體重');return}await window.storage.set('weightPlan',JSON.stringify(p));weightPlan=p}
+    goal=next;await sset('goal',goal);toast('目標設定：'+goal+' kg');renderWeight();
+  }catch(err){toast('目標儲存失敗，請再試一次')}
 };
 
 
@@ -861,15 +956,18 @@ function initSync(){
   if(isDayOff){$('#work-title').textContent='日 常';$('#work-hint').textContent=HOLIDAYS[TODAY]?'今天放假 🎉':'週末休假'}
   $('#hd-date').textContent=(today.getMonth()+1)+' 月 '+today.getDate()+' 日';
   $('#cond-hint').textContent=isCondDay?'今天：美白牙膏・頭皮藥水・去斑 ✦':'今天不用牙膏／頭皮／去斑';
-  const [d,s,w,g,v,gl,ss,po]=await Promise.all([sget('day:'+TODAY),sget('summary'),sget('weights'),sget('goal'),sget('voice'),sget('goals'),sget('singStart'),sget('phaseOv')]);
+  const [d,s,w,g,v,gl,ss,po,wp,sp]=await Promise.all([sget('day:'+TODAY),sget('summary'),sget('weights'),sget('goal'),sget('voice'),sget('goals'),sget('singStart'),sget('phaseOv'),sget('weightPlan'),sget('singPlan')]);
   if(d)day=Object.assign(day,d);
   if(s)summary=s;
   if(w)weights=w;
   if(g)goal=g;
   if(v)voice=v;
   goals=gl||DEFAULT_GOALS.slice();
-  if(ss)singStart=ss;else{singStart=TODAY;await sset('singStart',singStart)}
-  if(po!=null)phaseOv=po;
+  weightPlan=normalizedWeightPlan(wp);singPlan=normalizedSingPlan(sp);
+  if(weightPlan)goal=weightPlan.ew;
+  if(singPlan){singStart=singPlan.s;phaseOv=singPlan.override}
+  else{if(validPlanDate(ss))singStart=ss;else{singStart=TODAY;await sset('singStart',singStart)}if(Number.isInteger(po)&&po>=0&&po<4)phaseOv=po}
+  fillWeightEditor();fillSingEditor();
   if(goal)$('#g-input').value=goal;
   // 唱歌任務說明跟著目前階段走
   syncSingDesc();
