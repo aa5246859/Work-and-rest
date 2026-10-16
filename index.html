@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#15171A">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="goals-version" content="2026.10.16.1">
+<meta name="goals-version" content="2026.10.16.2">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -114,6 +114,21 @@ body{height:var(--app-height,var(--viewport-height))}
 .list-toggle{display:block;width:100%;min-height:43px;margin-top:8px;padding:9px 12px;border:1px solid #404852;border-radius:10px;background:#292E34;color:var(--jade);font-size:14px;font-weight:600;text-align:center}.list-toggle:active{background:#323941}.list-toggle[hidden]{display:none}
 #w-more{width:auto;min-height:36px;margin:0;padding:5px 0 5px 10px;border:0;background:transparent;color:var(--jade);white-space:nowrap;font-size:13px;text-align:right}
 .p-row.cur{background:#32342F;border-radius:9px;margin:1px -8px;padding-left:8px;padding-right:8px}.p-row.fut{opacity:.7}
+
+/* 體重趨勢：日期與公斤刻度留出空間，焦點放在最近的實測值。 */
+.trend-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 11px}
+.trend-head h4{font-size:17px;font-weight:650;letter-spacing:-.015em}
+.trend-head p{font-size:13px;line-height:1.5;color:var(--mut);font-variant-numeric:tabular-nums;margin-top:3px}
+.trend-head p .dn{color:var(--jade)}.trend-head p .up{color:var(--rose)}
+.trend-switch{display:flex;flex:none;gap:3px;padding:3px;border:1px solid #3F454D;border-radius:10px;background:#1B1F24}
+.trend-switch button{min-width:47px;min-height:34px;padding:5px 7px;border:0;border-radius:7px;background:transparent;color:var(--mut);font-size:13px;font-weight:600;line-height:1.25;white-space:nowrap}
+.trend-switch button.on{background:#3B3933;color:#E8D3AA}
+.chart-box{height:208px;margin:0;border:1px solid #3D444D;border-radius:13px;background:#1B2025;overflow:hidden}
+.chart-box.empty-chart{height:96px;margin:0}.chart-box svg{display:block}
+.chart-key{display:flex;align-items:center;gap:17px;justify-content:flex-start;margin:10px 2px 0;color:var(--mut);font-size:13px}
+.chart-key span{white-space:nowrap}.chart-key i{display:inline-block;width:16px;margin-right:6px;vertical-align:middle;border-top:2.5px solid var(--jade);border-radius:2px}
+.chart-key .route i{border-color:var(--gold);border-top-style:dashed}.chart-key [hidden]{display:none}
+@media(max-width:359px){.trend-head{gap:7px}.trend-switch button{min-width:42px;padding:5px}.trend-head h4{font-size:16px}}
 
 </style>
 </head>
@@ -234,8 +249,12 @@ body{height:var(--app-height,var(--viewport-height))}
         <div class="w-stat" id="ws-7d"><b>–</b><span>vs 7 天前</span></div>
         <div class="w-stat" id="ws-30d"><b>–</b><span>vs 30 天前</span></div>
       </div>
-      <div class="chart-head"><span>近 30 筆紀錄</span><div class="chart-key"><span><i></i>實際</span><span class="route" id="chart-route-key" hidden><i></i>路線</span></div></div>
+      <div class="trend-head">
+        <div><h4>體重趨勢</h4><p id="trend-summary">最近的體重變化</p></div>
+        <div class="trend-switch" role="group" aria-label="圖表期間"><button type="button" data-trend-days="7" class="on" aria-pressed="true">7 天</button><button type="button" data-trend-days="30" aria-pressed="false">30 天</button></div>
+      </div>
       <div class="chart-box"><svg id="w-chart" width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" role="img" aria-label="近期體重走勢"></svg></div>
+      <div class="chart-key"><span><i></i>實測體重</span><span class="route" id="chart-route-key" hidden><i></i>計畫路線</span></div>
     </div>
     <div class="card">
       <div class="sec-title"><h3>減重路線</h3><small id="plan-meta"></small></div>
@@ -434,7 +453,7 @@ let day={done:{},subs:{},water:0,workout:null,rest:false,todos:[]}; // 今天
 let summary={};   // {date:{p,w}}
 let weights={};   // {date:kg}
 let goal=null;    // 目標體重
-let showAllW=false, showAllPlan=false; // 體重與路線列表展開
+let trendDays=7, showAllW=false, showAllPlan=false; // 體重與路線列表展開
 let voice={};       // 音域 {date:{n:音階index,q:穩定度}}
 let goals=null;     // 目標清單 [{n,on}]
 let singStart=null; // 唱歌計畫起始日
@@ -817,11 +836,10 @@ async function saveWeight(v){
 function renderWeight(){
   const keys=Object.keys(weights).sort();
   const p=currentWeightPlan();
-  const chart=$('#w-chart');chart.setAttribute('viewBox',keys.length<2?'0 0 400 85':'0 0 400 200');chart.parentElement.classList.toggle('empty-chart',keys.length<2);
   const hint=$('#wq-hint');
   if(weights[TODAY])hint.textContent='今天：'+weights[TODAY]+' kg ✓';
   else{const pr=planRows().find(r=>r.d>=TODAY);hint.textContent=pr&&TODAY>=p.s&&TODAY<=p.e?'本週 ≤ '+pr.t+' kg':'早上量完順手記';}
-  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';$('#ws-goal').innerHTML=goal?'<b>'+goal+'</b><span>目標 (kg)</span>':'<b>–</b><span>先設定目標</span>';chart.innerHTML='<text x="200" y="46" fill="#AAB2BB" font-size="14" text-anchor="middle">記錄兩天以上，就能看到體重變化</text>';$('#chart-route-key').hidden=true;$('#w-more').hidden=true;renderPlan();return}
+  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';$('#ws-goal').innerHTML=goal?'<b>'+goal+'</b><span>目標 (kg)</span>':'<b>–</b><span>先設定目標</span>';renderWeightChart(keys);$('#w-more').hidden=true;renderPlan();return}
   const last=weights[keys[keys.length-1]];
   $('#ws-now').innerHTML=`<b>${last}</b><span>最新 (kg)</span>`;
   const diffTo=days=>{
@@ -836,30 +854,7 @@ function renderWeight(){
   if(goal){const gd=Math.round((last-goal)*10)/10;
     $('#ws-goal').innerHTML=gd<=0?`<b class="dn">達標 🎉</b><span>目標 ${goal} kg</span>`:`<b>${gd}</b><span>還差 (目標 ${goal})</span>`;
   }else $('#ws-goal').innerHTML='<b>–</b><span>先設定目標</span>';
-  // 近 30 筆：刻度以實際體重為主，遠處的終點不會把日常變化壓成平線。
-  const pts=keys.slice(-30).map(k=>({k,v:weights[k]}));
-  const svg=$('#w-chart');
-  if(pts.length<2){svg.innerHTML='<text x="200" y="46" fill="#AAB2BB" font-size="14" text-anchor="middle">記錄兩天以上，就能看到體重變化</text>';$('#chart-route-key').hidden=true;}
-  else{
-    const actual=pts.map(x=>x.v),low=Math.min(...actual),high=Math.max(...actual);
-    const planPts=planAt(TODAY)!=null?pts.map((x,i)=>({i,v:planAt(x.k)})).filter(x=>x.v!=null):[];
-    const nearby=planPts.filter(x=>x.v>=low-2&&x.v<=high+2);
-    const showRoute=planPts.length>=2&&nearby.length===planPts.length;
-    $('#chart-route-key').hidden=!showRoute;
-    const range=Math.max(1.5,high-low),pad=Math.max(.7,range*.18);
-    let mn=low-pad,mx=high+pad;
-    if(showRoute){mn=Math.min(mn,Math.min(...planPts.map(x=>x.v))-pad);mx=Math.max(mx,Math.max(...planPts.map(x=>x.v))+pad)}
-    const X=i=>46+i*325/(pts.length-1),Y=v=>15+(mx-v)/(mx-mn)*144;
-    const line='M'+pts.map((x,i)=>X(i).toFixed(1)+','+Y(x.v).toFixed(1)).join(' L');
-    const route=showRoute?`<polyline points="${planPts.map(x=>X(x.i).toFixed(1)+','+Y(x.v).toFixed(1)).join(' ')}" fill="none" stroke="#9DB7C8" stroke-width="2" stroke-dasharray="5 6" stroke-linecap="round" opacity=".8"/>`:'';
-    const fmtDate=k=>{const a=k.split('-');return Number(a[1])+'/'+Number(a[2])};
-    const tick=v=>v.toFixed(1).replace(/\.0$/,'');
-    svg.innerHTML=`<defs><linearGradient id="weight-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#CEB992" stop-opacity=".22"/><stop offset="1" stop-color="#CEB992" stop-opacity="0"/></linearGradient><clipPath id="weight-clip"><rect x="45" y="14" width="328" height="147"/></clipPath></defs>`+
-      [0,.5,1].map(t=>{const yy=15+144*t;return `<line x1="46" y1="${yy}" x2="372" y2="${yy}" stroke="#424A53" stroke-width="1" opacity="${t===1?.8:.55}"/><text x="38" y="${yy+4}" fill="#AAB2BB" font-size="12" text-anchor="end">${tick(mx-(mx-mn)*t)}</text>`}).join('')+
-      `<g clip-path="url(#weight-clip)"><path d="${line} L371,159 L46,159 Z" fill="url(#weight-fill)"/>${route}<path d="${line}" fill="none" stroke="#CEB992" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/></g>`+
-      `<circle cx="${X(pts.length-1)}" cy="${Y(pts[pts.length-1].v)}" r="7" fill="#CEB992" opacity=".18"/><circle cx="${X(pts.length-1)}" cy="${Y(pts[pts.length-1].v)}" r="3.5" fill="#E8D5AE"/>`+
-      `<text x="46" y="189" fill="#AAB2BB" font-size="12">${fmtDate(pts[0].k)}</text><text x="372" y="189" fill="#AAB2BB" font-size="12" text-anchor="end">${fmtDate(pts[pts.length-1].k)}</text>`;
-  }
+  renderWeightChart(keys);
   // list
   const list=$('#w-list');list.innerHTML='';
   const recent=keys.filter(k=>k>=planDateAdd(TODAY,-6));
@@ -875,6 +870,47 @@ function renderWeight(){
     list.appendChild(r);
   });
   renderPlan();
+}
+
+// 近期體重依實際日期定位；記錄少時保持刻度可讀，遠距目標不擠壓曲線。
+function renderWeightChart(keys){
+  const svg=$('#w-chart'),firstDay=planDateAdd(TODAY,1-trendDays);
+  const pts=keys.filter(k=>k>=firstDay&&k<=TODAY).map(k=>({k,v:Number(weights[k])})).filter(x=>Number.isFinite(x.v));
+  const buttons=document.querySelectorAll('.trend-switch button');
+  buttons.forEach(b=>{const on=Number(b.dataset.trendDays)===trendDays;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))});
+  const summary=$('#trend-summary'),routeKey=$('#chart-route-key'),box=svg.parentElement;
+  const dateLabel=k=>{const a=k.split('-');return Number(a[1])+'/'+Number(a[2])};
+  if(!pts.length){
+    summary.textContent='近 '+trendDays+' 天沒有體重紀錄';
+    routeKey.hidden=true;box.classList.add('empty-chart');
+    svg.innerHTML='<text x="200" y="55" fill="#AEB7BF" font-size="15" text-anchor="middle">這段期間沒有紀錄</text>';
+    return;
+  }
+  const first=pts[0],last=pts[pts.length-1],diff=Math.round((last.v-first.v)*10)/10;
+  summary.innerHTML=pts.length===1?`目前 <strong>${last.v.toFixed(1)} kg</strong>`:
+    `${dateLabel(first.k)} 至 ${dateLabel(last.k)} · <strong>${last.v.toFixed(1)} kg</strong> <span class="${diff>0?'up':diff<0?'dn':''}">(${diff>0?'+':''}${diff.toFixed(1)})</span>`;
+  const values=pts.map(x=>x.v),lo=Math.min(...values),hi=Math.max(...values);
+  const routePts=[];
+  if(planAt(TODAY)!=null){for(let n=0;n<=calendarDays(first.k,last.k);n++){const k=planDateAdd(first.k,n),v=planAt(k);if(v!=null)routePts.push({k,v})}}
+  const showRoute=routePts.length>=2&&routePts.every(x=>x.v>=lo-2&&x.v<=hi+2);
+  routeKey.hidden=!showRoute;
+  const all=showRoute?values.concat(routePts.map(x=>x.v)):values;
+  const low=Math.min(...all),high=Math.max(...all),range=Math.max(1.5,high-low),pad=Math.max(.5,range*.16);
+  const mn=low-pad,mx=high+pad;
+  const duration=Math.max(1,calendarDays(first.k,last.k));
+  const X=k=>46+326*calendarDays(first.k,k)/duration;
+  const Y=v=>16+(mx-v)/(mx-mn)*142;
+  const f=n=>Number(n.toFixed(1));
+  const path='M'+pts.map(x=>f(X(x.k))+','+f(Y(x.v))).join(' L');
+  const route=showRoute?`<polyline points="${routePts.map(x=>f(X(x.k))+','+f(Y(x.v))).join(' ')}" fill="none" stroke="#9DB7C8" stroke-width="2" stroke-dasharray="6 6" stroke-linecap="round" opacity=".9"/>`:'';
+  const guide=[0,.5,1].map(t=>{const yy=16+142*t;return `<line x1="46" y1="${yy}" x2="372" y2="${yy}" stroke="#414A53" stroke-width="1" opacity=".65"/><text x="38" y="${yy+4}" text-anchor="end" font-size="12" fill="#AEB7BF">${(mx-(mx-mn)*t).toFixed(1)}</text>`}).join('');
+  const line=pts.length>1?`<g clip-path="url(#trend-clip)"><path d="${path} L${f(X(last.k))},158 L${f(X(first.k))},158 Z" fill="url(#trend-fill)"/>${route}<path d="${path}" fill="none" stroke="#D9C39C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>`:'';
+  const dotX=pts.length>1?X(last.k):209,dotY=Y(last.v);
+  box.classList.remove('empty-chart');
+  svg.innerHTML=`<defs><linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#CEB992" stop-opacity=".22"/><stop offset="1" stop-color="#CEB992" stop-opacity="0"/></linearGradient><clipPath id="trend-clip"><rect x="45" y="15" width="329" height="145"/></clipPath></defs>`+
+    guide+line+`<circle cx="${f(dotX)}" cy="${f(dotY)}" r="8" fill="#CEB992" opacity=".22"/><circle cx="${f(dotX)}" cy="${f(dotY)}" r="4" fill="#E7D2AA" stroke="#1B2025" stroke-width="1"/>`+
+    `<text x="46" y="187" font-size="12" fill="#AEB7BF">${dateLabel(first.k)}</text>`+
+    (pts.length>1?`<text x="372" y="187" font-size="12" fill="#AEB7BF" text-anchor="end">${dateLabel(last.k)}</text>`:'');
 }
 
 /* ─────────── history (月曆) ─────────── */
@@ -967,6 +1003,7 @@ $('#w-save').onclick=()=>saveWeight($('#w-input').value);
 $('#wq-input').addEventListener('keydown',e=>{if(e.key==='Enter')saveWeight(e.target.value)});
 $('#w-input').addEventListener('keydown',e=>{if(e.key==='Enter')saveWeight(e.target.value)});
 $('#w-more').onclick=()=>{showAllW=!showAllW;renderWeight()};
+document.querySelectorAll('.trend-switch button').forEach(b=>b.onclick=()=>{trendDays=Number(b.dataset.trendDays);renderWeightChart(Object.keys(weights).sort())});
 $('#plan-more').onclick=()=>{showAllPlan=!showAllPlan;renderPlan()};
 $('#g-save').onclick=async()=>{
   const v=parseFloat($('#g-input').value);
