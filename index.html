@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#15171A">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="goals-version" content="2026.10.13.7">
+<meta name="goals-version" content="2026.10.16.1">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -106,6 +106,15 @@ body{height:var(--app-height,var(--viewport-height))}
 #delete-help{margin-top:7px;font-size:15px;line-height:1.65;color:var(--mut);overflow-wrap:anywhere}.delete-item{margin:16px 0 19px;padding:14px;border:1px solid #414750;border-radius:13px;background:#1B1E23;line-height:1.65;color:var(--ink);overflow-wrap:anywhere}.delete-item[hidden]{display:none}.delete-item strong{display:block;font-size:17px;font-weight:650;color:var(--jade)}.delete-item span{display:block;margin-top:5px;font-size:14px;line-height:1.7;color:var(--mut);white-space:pre-wrap}
 .delete-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto}.delete-actions button{min-height:50px;border-radius:12px;font-family:inherit;font-size:16px;font-weight:650;padding:10px}.cancel-delete{border:1px solid #59616B;background:#30353D;color:var(--ink)}.confirm-delete{border:1px solid var(--jade);background:var(--jade);color:#202327}.delete-card[data-variant="danger"] .confirm-delete{border-color:#C49A80;background:#C49A80}.delete-actions button:active{filter:brightness(.94)}
 @media(max-width:359px){.delete-layer{padding-left:16px;padding-right:16px}.delete-card{padding:19px}.delete-item{margin:13px 0 15px}.v-input{grid-template-columns:72px minmax(0,1fr) auto}.v-input .btn{padding:0 10px}}
+
+/* 體重頁：近期資訊維持短而清楚，圖表保留讀值空間。 */
+.chart-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 1px 6px;font-size:13px;color:var(--mut)}
+.chart-key{display:flex;align-items:center;gap:11px;flex-wrap:wrap;justify-content:flex-end}.chart-key span{white-space:nowrap}.chart-key i{display:inline-block;width:14px;margin-right:5px;vertical-align:middle;border-top:2px solid var(--jade);border-radius:2px}.chart-key .route i{border-color:var(--gold);border-top-style:dashed}
+.chart-box{height:205px;margin:2px 0 0;border:1px solid #363D45;border-radius:13px;background:linear-gradient(180deg,#262B31 0%,#22262B 100%);overflow:hidden}.chart-box svg{display:block}.chart-box.empty-chart{height:85px}.chart-box svg text{font-family:-apple-system,BlinkMacSystemFont,"PingFang TC",sans-serif;font-variant-numeric:tabular-nums}
+.list-toggle{display:block;width:100%;min-height:43px;margin-top:8px;padding:9px 12px;border:1px solid #404852;border-radius:10px;background:#292E34;color:var(--jade);font-size:14px;font-weight:600;text-align:center}.list-toggle:active{background:#323941}.list-toggle[hidden]{display:none}
+#w-more{width:auto;min-height:36px;margin:0;padding:5px 0 5px 10px;border:0;background:transparent;color:var(--jade);white-space:nowrap;font-size:13px;text-align:right}
+.p-row.cur{background:#32342F;border-radius:9px;margin:1px -8px;padding-left:8px;padding-right:8px}.p-row.fut{opacity:.7}
+
 </style>
 </head>
 <body>
@@ -225,7 +234,8 @@ body{height:var(--app-height,var(--viewport-height))}
         <div class="w-stat" id="ws-7d"><b>–</b><span>vs 7 天前</span></div>
         <div class="w-stat" id="ws-30d"><b>–</b><span>vs 30 天前</span></div>
       </div>
-      <div class="chart-box"><svg id="w-chart" width="100%" height="100%" viewBox="0 0 400 170" preserveAspectRatio="none"></svg></div>
+      <div class="chart-head"><span>近 30 筆紀錄</span><div class="chart-key"><span><i></i>實際</span><span class="route" id="chart-route-key" hidden><i></i>路線</span></div></div>
+      <div class="chart-box"><svg id="w-chart" width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" role="img" aria-label="近期體重走勢"></svg></div>
     </div>
     <div class="card">
       <div class="sec-title"><h3>減重路線</h3><small id="plan-meta"></small></div>
@@ -246,9 +256,10 @@ body{height:var(--app-height,var(--viewport-height))}
 
       <div class="plan-hero" id="plan-hero"></div>
       <div id="plan-rows"></div>
+      <button type="button" class="list-toggle" id="plan-more" aria-expanded="false" hidden></button>
     </div>
     <div class="card">
-      <div class="sec-title"><h3>近期</h3><small id="w-more" style="cursor:pointer;color:var(--jade)"></small></div>
+      <div class="sec-title"><h3>近期</h3><button type="button" id="w-more" hidden></button></div>
       <div class="w-list" id="w-list"><div class="empty">還沒有紀錄，從今天開始。</div></div>
     </div>
   </div>
@@ -423,7 +434,7 @@ let day={done:{},subs:{},water:0,workout:null,rest:false,todos:[]}; // 今天
 let summary={};   // {date:{p,w}}
 let weights={};   // {date:kg}
 let goal=null;    // 目標體重
-let showAllW=false; // 體重列表展開
+let showAllW=false, showAllPlan=false; // 體重與路線列表展開
 let voice={};       // 音域 {date:{n:音階index,q:穩定度}}
 let goals=null;     // 目標清單 [{n,on}]
 let singStart=null; // 唱歌計畫起始日
@@ -784,11 +795,13 @@ function renderPlan(){
   else if(over)hero.innerHTML=last!=null&&last<=p.ew+0.05?'<b>完成 '+p.ew+' kg 🎉</b>':'路線已結束・最終目標 <b>'+p.ew+' kg</b>';
   else{const cur=rows[ci],diff=last!=null?Math.round((last-cur.t)*10)/10:null;hero.innerHTML=`<span><b>${cur.label}</b>・${parseInt(cur.d.slice(5,7))}/${parseInt(cur.d.slice(8))} 前 ≤ <b>${cur.t} kg</b></span>`+(diff==null?'':diff<=0?`<span class="ok">領先 ${Math.abs(diff).toFixed(1)}</span>`:`<span class="behind">還差 ${diff.toFixed(1)}</span>`)}
   const box=$('#plan-rows');box.innerHTML='';
-  rows.forEach((r,i)=>{const row=document.createElement('div');let cls='p-row',st='';
+  const visible=showAllPlan?rows.map((_,i)=>i):[...new Set([ci===0?Math.min(1,rows.length-1):ci-1,ci])];
+  rows.forEach((r,i)=>{if(!visible.includes(i))return;const row=document.createElement('div');let cls='p-row',st='';
     if(r.d<TODAY){const w=weightNear(r.d);st=w==null?'<span class="ps">—</span>':w<=r.t+0.05?'<span class="ps ok">✓</span>':'<span class="ps miss">✗</span>'}
     else if(i===ci&&!over){cls+=' cur';st='<span class="ps" style="color:var(--gold)">◆</span>'}else{cls+=' fut';st='<span class="ps"></span>'}
     row.className=cls;row.innerHTML=`<span class="pl">${r.label}</span><span class="pd">${parseInt(r.d.slice(5,7))}/${parseInt(r.d.slice(8))}</span><span class="pt">${r.t.toFixed(1)} kg</span>${st}`;box.appendChild(row);
   });
+  const more=$('#plan-more');more.hidden=rows.length<=2;more.textContent=showAllPlan?'收起完整路線':'查看完整路線 · '+rows.length+' 個階段';more.setAttribute('aria-expanded',String(showAllPlan));
 }
 
 /* ─────────── weight ─────────── */
@@ -797,8 +810,6 @@ async function saveWeight(v){
   if(!kg||kg<25||kg>250){toast('輸入看起來怪怪的，再確認一下');return}
   weights[TODAY]=Math.round(kg*10)/10;
   await sset('weights',weights);
-  day.done['wake']=true; // 量了體重，起床項順手打勾
-  await saveDay();
   toast('已記錄 '+weights[TODAY]+' kg');
   $('#wq-input').value='';$('#w-input').value='';
   renderWeight();renderToday(true);
@@ -806,11 +817,11 @@ async function saveWeight(v){
 function renderWeight(){
   const keys=Object.keys(weights).sort();
   const p=currentWeightPlan();
-  const chart=$('#w-chart');chart.setAttribute('viewBox',keys.length<2?'0 0 400 70':'0 0 400 170');chart.parentElement.classList.toggle('empty-chart',keys.length<2);
+  const chart=$('#w-chart');chart.setAttribute('viewBox',keys.length<2?'0 0 400 85':'0 0 400 200');chart.parentElement.classList.toggle('empty-chart',keys.length<2);
   const hint=$('#wq-hint');
   if(weights[TODAY])hint.textContent='今天：'+weights[TODAY]+' kg ✓';
   else{const pr=planRows().find(r=>r.d>=TODAY);hint.textContent=pr&&TODAY>=p.s&&TODAY<=p.e?'本週 ≤ '+pr.t+' kg':'早上量完順手記';}
-  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';$('#ws-goal').innerHTML=goal?'<b>'+goal+'</b><span>目標 (kg)</span>':'<b>–</b><span>先設定目標</span>';chart.innerHTML='<text x="200" y="38" fill="#929CA8" font-size="15" text-anchor="middle">記錄兩天以上就會出現曲線</text>';renderPlan();return}
+  if(!keys.length){$('#w-list').innerHTML='<div class="empty">還沒有紀錄，從今天開始。</div>';$('#ws-goal').innerHTML=goal?'<b>'+goal+'</b><span>目標 (kg)</span>':'<b>–</b><span>先設定目標</span>';chart.innerHTML='<text x="200" y="46" fill="#AAB2BB" font-size="14" text-anchor="middle">記錄兩天以上，就能看到體重變化</text>';$('#chart-route-key').hidden=true;$('#w-more').hidden=true;renderPlan();return}
   const last=weights[keys[keys.length-1]];
   $('#ws-now').innerHTML=`<b>${last}</b><span>最新 (kg)</span>`;
   const diffTo=days=>{
@@ -825,31 +836,36 @@ function renderWeight(){
   if(goal){const gd=Math.round((last-goal)*10)/10;
     $('#ws-goal').innerHTML=gd<=0?`<b class="dn">達標 🎉</b><span>目標 ${goal} kg</span>`:`<b>${gd}</b><span>還差 (目標 ${goal})</span>`;
   }else $('#ws-goal').innerHTML='<b>–</b><span>先設定目標</span>';
-  // chart（近 30 筆）
+  // 近 30 筆：刻度以實際體重為主，遠處的終點不會把日常變化壓成平線。
   const pts=keys.slice(-30).map(k=>({k,v:weights[k]}));
   const svg=$('#w-chart');
-  if(pts.length<2){svg.innerHTML='<text x="200" y="38" fill="#929CA8" font-size="15" text-anchor="middle">記錄兩天以上就會出現曲線</text>';}
+  if(pts.length<2){svg.innerHTML='<text x="200" y="46" fill="#AAB2BB" font-size="14" text-anchor="middle">記錄兩天以上，就能看到體重變化</text>';$('#chart-route-key').hidden=true;}
   else{
-    const vs=pts.map(p=>p.v);
-    let mn=Math.min(...vs),mx=Math.max(...vs);
-    if(goal){mn=Math.min(mn,goal);mx=Math.max(mx,goal)}
-    const planPts=planAt(TODAY)!=null?pts.map((p,i)=>({i,v:planAt(p.k)})).filter(x=>x.v!=null):[];
-    if(planPts.length){mn=Math.min(mn,...planPts.map(x=>x.v));mx=Math.max(mx,...planPts.map(x=>x.v))}
-    const pad2=(mx-mn)*0.15||1;
-    const X=i=>10+i*(380/(pts.length-1)), Y=v=>15+(mx+pad2-v)/((mx-mn)+pad2*2)*140;
-    let path='M'+pts.map((p,i)=>X(i)+','+Y(p.v)).join(' L');
-    let goalLine='';
-    if(planPts.length>=2){
-      goalLine=`<polyline points="${planPts.map(x=>X(x.i)+','+Y(x.v)).join(' ')}" fill="none" stroke="#9DB7C8" stroke-width="1.5" stroke-dasharray="5 5" opacity=".85"/><text x="388" y="${Y(planPts[planPts.length-1].v)-6}" fill="#9DB7C8" font-size="15" text-anchor="end">路線</text>`;
-    }else if(goal){const gy=Y(goal);goalLine=`<line x1="10" y1="${gy}" x2="390" y2="${gy}" stroke="#9DB7C8" stroke-width="1.5" stroke-dasharray="5 5" opacity=".8"/><text x="388" y="${gy-5}" fill="#9DB7C8" font-size="15" text-anchor="end">目標 ${goal}</text>`;}
-    svg.innerHTML=`<path d="${path} L${X(pts.length-1)},165 L10,165 Z" fill="rgba(206,185,146,.09)"/>${goalLine}<path d="${path}" fill="none" stroke="#CEB992" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`+
-      pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.v)}" r="3" fill="#CEB992"/>`).join('')+
-      `<text x="12" y="14" fill="#B6BDC6" font-size="15">${mx} kg</text><text x="12" y="164" fill="#B6BDC6" font-size="15">${mn} kg</text>`;
+    const actual=pts.map(x=>x.v),low=Math.min(...actual),high=Math.max(...actual);
+    const planPts=planAt(TODAY)!=null?pts.map((x,i)=>({i,v:planAt(x.k)})).filter(x=>x.v!=null):[];
+    const nearby=planPts.filter(x=>x.v>=low-2&&x.v<=high+2);
+    const showRoute=planPts.length>=2&&nearby.length===planPts.length;
+    $('#chart-route-key').hidden=!showRoute;
+    const range=Math.max(1.5,high-low),pad=Math.max(.7,range*.18);
+    let mn=low-pad,mx=high+pad;
+    if(showRoute){mn=Math.min(mn,Math.min(...planPts.map(x=>x.v))-pad);mx=Math.max(mx,Math.max(...planPts.map(x=>x.v))+pad)}
+    const X=i=>46+i*325/(pts.length-1),Y=v=>15+(mx-v)/(mx-mn)*144;
+    const line='M'+pts.map((x,i)=>X(i).toFixed(1)+','+Y(x.v).toFixed(1)).join(' L');
+    const route=showRoute?`<polyline points="${planPts.map(x=>X(x.i).toFixed(1)+','+Y(x.v).toFixed(1)).join(' ')}" fill="none" stroke="#9DB7C8" stroke-width="2" stroke-dasharray="5 6" stroke-linecap="round" opacity=".8"/>`:'';
+    const fmtDate=k=>{const a=k.split('-');return Number(a[1])+'/'+Number(a[2])};
+    const tick=v=>v.toFixed(1).replace(/\.0$/,'');
+    svg.innerHTML=`<defs><linearGradient id="weight-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#CEB992" stop-opacity=".22"/><stop offset="1" stop-color="#CEB992" stop-opacity="0"/></linearGradient><clipPath id="weight-clip"><rect x="45" y="14" width="328" height="147"/></clipPath></defs>`+
+      [0,.5,1].map(t=>{const yy=15+144*t;return `<line x1="46" y1="${yy}" x2="372" y2="${yy}" stroke="#424A53" stroke-width="1" opacity="${t===1?.8:.55}"/><text x="38" y="${yy+4}" fill="#AAB2BB" font-size="12" text-anchor="end">${tick(mx-(mx-mn)*t)}</text>`}).join('')+
+      `<g clip-path="url(#weight-clip)"><path d="${line} L371,159 L46,159 Z" fill="url(#weight-fill)"/>${route}<path d="${line}" fill="none" stroke="#CEB992" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/></g>`+
+      `<circle cx="${X(pts.length-1)}" cy="${Y(pts[pts.length-1].v)}" r="7" fill="#CEB992" opacity=".18"/><circle cx="${X(pts.length-1)}" cy="${Y(pts[pts.length-1].v)}" r="3.5" fill="#E8D5AE"/>`+
+      `<text x="46" y="189" fill="#AAB2BB" font-size="12">${fmtDate(pts[0].k)}</text><text x="372" y="189" fill="#AAB2BB" font-size="12" text-anchor="end">${fmtDate(pts[pts.length-1].k)}</text>`;
   }
   // list
   const list=$('#w-list');list.innerHTML='';
-  const rev=(showAllW?keys.slice():keys.slice(-14)).reverse();
-  $('#w-more').textContent=keys.length>14?(showAllW?'只看近 14 筆':'顯示全部 '+keys.length+' 筆'):'';
+  const recent=keys.filter(k=>k>=planDateAdd(TODAY,-6));
+  const rev=(showAllW?keys:recent).slice().reverse();
+  const more=$('#w-more');more.hidden=keys.length<=recent.length;more.textContent=showAllW?'收起':'顯示全部 '+keys.length+' 筆';more.setAttribute('aria-expanded',String(showAllW));
+  if(!rev.length)list.innerHTML='<div class="empty">近 7 天沒有紀錄</div>';
   rev.forEach((k,i)=>{
     const prev=rev[i+1]?weights[rev[i+1]]:null;
     const df=prev!=null?Math.round((weights[k]-prev)*10)/10:null;
@@ -951,6 +967,7 @@ $('#w-save').onclick=()=>saveWeight($('#w-input').value);
 $('#wq-input').addEventListener('keydown',e=>{if(e.key==='Enter')saveWeight(e.target.value)});
 $('#w-input').addEventListener('keydown',e=>{if(e.key==='Enter')saveWeight(e.target.value)});
 $('#w-more').onclick=()=>{showAllW=!showAllW;renderWeight()};
+$('#plan-more').onclick=()=>{showAllPlan=!showAllPlan;renderPlan()};
 $('#g-save').onclick=async()=>{
   const v=parseFloat($('#g-input').value);
   if(!v||v<25||v>250){toast('目標數字怪怪的，再確認一下');return}
