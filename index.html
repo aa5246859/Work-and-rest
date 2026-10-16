@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#15171A">
 <meta name="color-scheme" content="dark">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="goals-version" content="2026.10.16.2">
+<meta name="goals-version" content="2026.10.16.3">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -130,6 +130,7 @@ body{height:var(--app-height,var(--viewport-height))}
 .chart-key .route i{border-color:var(--gold);border-top-style:dashed}.chart-key [hidden]{display:none}
 @media(max-width:359px){.trend-head{gap:7px}.trend-switch button{min-width:42px;padding:5px}.trend-head h4{font-size:16px}}
 
+.chart-box{position:relative}.chart-gap-note{position:absolute;top:50%;transform:translate(-50%,-50%);padding:5px 8px;border:1px solid #39434C;border-radius:7px;background:#242A30;color:#AEB7BF;font-size:12px;white-space:nowrap;pointer-events:none}.chart-gap-note[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -253,7 +254,7 @@ body{height:var(--app-height,var(--viewport-height))}
         <div><h4>體重趨勢</h4><p id="trend-summary">最近的體重變化</p></div>
         <div class="trend-switch" role="group" aria-label="圖表期間"><button type="button" data-trend-days="7" class="on" aria-pressed="true">7 天</button><button type="button" data-trend-days="30" aria-pressed="false">30 天</button></div>
       </div>
-      <div class="chart-box"><svg id="w-chart" width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" role="img" aria-label="近期體重走勢"></svg></div>
+      <div class="chart-box"><svg id="w-chart" width="100%" height="100%" viewBox="0 0 400 200" preserveAspectRatio="none" role="img" aria-label="近期體重走勢"></svg><span class="chart-gap-note" id="chart-gap-note" hidden></span></div>
       <div class="chart-key"><span><i></i>實測體重</span><span class="route" id="chart-route-key" hidden><i></i>計畫路線</span></div>
     </div>
     <div class="card">
@@ -882,13 +883,13 @@ function renderWeightChart(keys){
   const dateLabel=k=>{const a=k.split('-');return Number(a[1])+'/'+Number(a[2])};
   if(!pts.length){
     summary.textContent='近 '+trendDays+' 天沒有體重紀錄';
-    routeKey.hidden=true;box.classList.add('empty-chart');
+    routeKey.hidden=true;box.classList.add('empty-chart');$('#chart-gap-note').hidden=true;
     svg.innerHTML='<text x="200" y="55" fill="#AEB7BF" font-size="15" text-anchor="middle">這段期間沒有紀錄</text>';
     return;
   }
   const first=pts[0],last=pts[pts.length-1],diff=Math.round((last.v-first.v)*10)/10;
-  summary.innerHTML=pts.length===1?`目前 <strong>${last.v.toFixed(1)} kg</strong>`:
-    `${dateLabel(first.k)} 至 ${dateLabel(last.k)} · <strong>${last.v.toFixed(1)} kg</strong> <span class="${diff>0?'up':diff<0?'dn':''}">(${diff>0?'+':''}${diff.toFixed(1)})</span>`;
+  summary.innerHTML=`近 ${trendDays} 天 · ${pts.length} 筆 · <strong>${last.v.toFixed(1)} kg</strong>`+
+    (pts.length>1?` <span class="${diff>0?'up':diff<0?'dn':''}">(${diff>0?'+':''}${diff.toFixed(1)})</span>`:'');
   const values=pts.map(x=>x.v),lo=Math.min(...values),hi=Math.max(...values);
   const routePts=[];
   if(planAt(TODAY)!=null){for(let n=0;n<=calendarDays(first.k,last.k);n++){const k=planDateAdd(first.k,n),v=planAt(k);if(v!=null)routePts.push({k,v})}}
@@ -897,20 +898,23 @@ function renderWeightChart(keys){
   const all=showRoute?values.concat(routePts.map(x=>x.v)):values;
   const low=Math.min(...all),high=Math.max(...all),range=Math.max(1.5,high-low),pad=Math.max(.5,range*.16);
   const mn=low-pad,mx=high+pad;
-  const duration=Math.max(1,calendarDays(first.k,last.k));
-  const X=k=>46+326*calendarDays(first.k,k)/duration;
+  const duration=trendDays-1;
+  const X=k=>46+326*calendarDays(firstDay,k)/duration;
   const Y=v=>16+(mx-v)/(mx-mn)*142;
   const f=n=>Number(n.toFixed(1));
   const path='M'+pts.map(x=>f(X(x.k))+','+f(Y(x.v))).join(' L');
   const route=showRoute?`<polyline points="${routePts.map(x=>f(X(x.k))+','+f(Y(x.v))).join(' ')}" fill="none" stroke="#9DB7C8" stroke-width="2" stroke-dasharray="6 6" stroke-linecap="round" opacity=".9"/>`:'';
   const guide=[0,.5,1].map(t=>{const yy=16+142*t;return `<line x1="46" y1="${yy}" x2="372" y2="${yy}" stroke="#414A53" stroke-width="1" opacity=".65"/><text x="38" y="${yy+4}" text-anchor="end" font-size="12" fill="#AEB7BF">${(mx-(mx-mn)*t).toFixed(1)}</text>`}).join('');
   const line=pts.length>1?`<g clip-path="url(#trend-clip)"><path d="${path} L${f(X(last.k))},158 L${f(X(first.k))},158 Z" fill="url(#trend-fill)"/>${route}<path d="${path}" fill="none" stroke="#D9C39C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g>`:'';
-  const dotX=pts.length>1?X(last.k):209,dotY=Y(last.v);
+  const dotX=X(last.k),dotY=Y(last.v);
+  const gapDays=calendarDays(firstDay,first.k);
+  const gapNote=$('#chart-gap-note');gapNote.hidden=gapDays<Math.ceil(trendDays/2);
+  if(!gapNote.hidden){gapNote.textContent='前 '+gapDays+' 天沒有紀錄';gapNote.style.left=(100*(46+X(first.k))/800)+'%'}
   box.classList.remove('empty-chart');
   svg.innerHTML=`<defs><linearGradient id="trend-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#CEB992" stop-opacity=".22"/><stop offset="1" stop-color="#CEB992" stop-opacity="0"/></linearGradient><clipPath id="trend-clip"><rect x="45" y="15" width="329" height="145"/></clipPath></defs>`+
     guide+line+`<circle cx="${f(dotX)}" cy="${f(dotY)}" r="8" fill="#CEB992" opacity=".22"/><circle cx="${f(dotX)}" cy="${f(dotY)}" r="4" fill="#E7D2AA" stroke="#1B2025" stroke-width="1"/>`+
-    `<text x="46" y="187" font-size="12" fill="#AEB7BF">${dateLabel(first.k)}</text>`+
-    (pts.length>1?`<text x="372" y="187" font-size="12" fill="#AEB7BF" text-anchor="end">${dateLabel(last.k)}</text>`:'');
+    `<text x="46" y="187" font-size="12" fill="#AEB7BF">${dateLabel(firstDay)}</text>`+
+    `<text x="372" y="187" font-size="12" fill="#AEB7BF" text-anchor="end">${dateLabel(TODAY)}</text>`;
 }
 
 /* ─────────── history (月曆) ─────────── */
